@@ -67,14 +67,6 @@ class Dropdate extends Fieldframe_Fieldtype {
 	public $default_site_settings = array('date_format' => self::DROPDATE_FMT_UNIX);
 	
 	/**
-	 * The site ID.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $site_id = '';
-	
-	/**
 	 * The class name.
 	 *
 	 * @access	private
@@ -89,14 +81,6 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 * @var 	string
 	 */
 	private $lower_class = '';
-	
-	/**
-	 * The Session namespace.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $namespace = '';
 	
 	
 	
@@ -114,12 +98,8 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function __construct()
 	{
-		global $DB, $PREFS;
-		
-		$this->site_id 		= $DB->escape_str($PREFS->ini('site_id'));
 		$this->class 		= get_class($this);
 		$this->lower_class 	= strtolower($this->class);
-		$this->namespace	= 'sl';
 	}
 	
 	
