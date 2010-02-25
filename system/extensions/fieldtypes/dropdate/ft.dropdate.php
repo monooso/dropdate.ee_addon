@@ -9,7 +9,7 @@ if ( ! defined('EXT'))
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
  * @package   	DropDate
- * @version   	0.1.0
+ * @version   	1.0.0
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/dropdate/
@@ -41,7 +41,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public $info = array(
 		'name'				=> 'DropDate',
-		'version'			=> '0.1.0',
+		'version'			=> '1.0.0',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'			=> 'http://experienceinternet.co.uk/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
@@ -163,12 +163,13 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_field($field_name = '', $field_data = '', $field_settings = array())
 	{
-		global $DSP;
+		global $DSP, $LANG;
 		
+		$LANG->fetch_language_file($this->lower_class);
 		$SD = new Fieldframe_SettingsDisplay();
 		
 		// Days.
-		$days[] = 'Day';
+		$days[] = $LANG->line('day');
 		for ($count = 1; $count <= 31; $count++)
 		{
 			$days[] = str_pad($count, 2, '0', STR_PAD_LEFT);
@@ -176,17 +177,17 @@ class Dropdate extends Fieldframe_Fieldtype {
 		
 		// Months.
 		$months = array(
-			'Month',
-			'January',		'February',
-			'March',		'April',
-			'May',			'June',
-			'July',			'August',
-			'September',	'October',
-			'November',		'December'
+			$LANG->line('month'),
+			$LANG->line('jan'), $LANG->line('feb'),
+			$LANG->line('mar'), $LANG->line('apr'),
+			$LANG->line('may'), $LANG->line('jun'),
+			$LANG->line('jul'), $LANG->line('aug'),
+			$LANG->line('sep'), $LANG->line('oct'),
+			$LANG->line('nov'), $LANG->line('dec')
 		);
 		
 		// Years.
-		$years[] = 'Year';
+		$years[] = $LANG->line('year');
 		for ($count = 1900; $count <= 2020; $count++)
 		{
 			$years[$count] = $count;
@@ -234,6 +235,9 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_field_settings($field_settings = array())
 	{
+		global $LANG;
+		
+		$LANG->fetch_language_file($this->lower_class);
 		$SD = new Fieldframe_SettingsDisplay();
 		
 		if (isset($field_settings['date_format']))
@@ -248,11 +252,11 @@ class Dropdate extends Fieldframe_Fieldtype {
 		}
 		
 		$options = array(
-			self::DROPDATE_FMT_UNIX => 'Unix Timestamp',
-			self::DROPDATE_FMT_YMD	=> 'YYYYMMDD'
+			self::DROPDATE_FMT_UNIX => $LANG->line('unix_format_label'),
+			self::DROPDATE_FMT_YMD	=> $LANG->line('ymd_format_label')
 		);
 		
-		$html = '<div class="itemWrapper"><label class="defaultBold">Save Dates As</label></div>'
+		$html = '<div class="itemWrapper"><label class="defaultBold">' .$LANG->line('save_format_label') .'</label></div>'
 			.$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'));
 		
 		return array('cell2' => $html);
@@ -271,7 +275,21 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_tag($params = array(), $tagdata = '', $field_data = '', $field_settings = array())
 	{
+		if (isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
+		{
+			$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
+			$field_data = preg_match($pattern, $field_data, $matches)
+				? $field_data = mktime(0, 0, 1, $matches[2], $matches[3], $matches[1])
+				: '';
+		}
 		
+		if ( ! $field_data)
+		{
+			return '';
+		}
+		
+		$params = array_merge(array('format' => 'U'), $params);
+		return date($params['format'], $field_data);
 	}
 	
 	
@@ -325,7 +343,6 @@ class Dropdate extends Fieldframe_Fieldtype {
 		
 		return $date;
 	}
-	
 	
 }
 

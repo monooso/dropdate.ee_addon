@@ -10,6 +10,29 @@
  */
 
 $L = array(
+	
+// General.
+'save_format_label'	=> 'Save Date As:',
+'unix_format_label'	=> 'UNIX timestamp',
+'ymd_format_label'	=> 'YYYYMMDD',
+
+'year'	=> 'Year',
+'month'	=> 'Month',
+'day'	=> 'Day',
+	
+// Months.
+'jan'	=> 'January',
+'feb'	=> 'February',
+'mar'	=> 'March',
+'apr'	=> 'April',
+'may'	=> 'May',
+'jun'	=> 'June',
+'jul'	=> 'July',
+'aug'	=> 'August',
+'sep'	=> 'September',
+'oct'	=> 'October',
+'nov'	=> 'November',
+'dec'	=> 'December',
 
 // All done.
 '' => ''
