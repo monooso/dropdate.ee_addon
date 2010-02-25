@@ -132,20 +132,34 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_field_settings($field_settings = array())
 	{
+		$SD = new Fieldframe_SettingsDisplay();
 		
-	}
-	
-	
-	/**
-	 * Saves custom field settings.
-	 *
-	 * @access	public
-	 * @param	array		$field_settings		Post data, received from the fields created in display_field_settings.
-	 * @return	array
-	 */
-	public function save_field_settings($field_settings = array())
-	{
+		$html = $SD->block('DropDate Settings');
 		
+		if (isset($field_settings['date_format']))
+		{
+			$value = $field_settings['date_format'];
+		}
+		else
+		{
+			$value = isset($this->site_settings['date_format'])
+				? $this->site_settings['date_format']
+				: '';
+		}
+		
+		$options = array(
+			self::DROPDATE_FMT_UNIX => 'Unix Timestamp',
+			self::DROPDATE_FMT_YMD	=> 'YYYYMMDD'
+		);
+			
+		$html .= $SD->row(array(
+			$SD->label('Save Dates As'),
+			$SD->radio_group('date_format', $value, $options)
+		));
+		
+		$html .= $SD->block_c();
+		
+		return array('cell2' => $html);
 	}
 	
 	
