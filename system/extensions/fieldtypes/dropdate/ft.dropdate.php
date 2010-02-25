@@ -324,6 +324,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return $date;
 	}
 	
+	
 }
 
 /* End of file			: ft.dropdate.php */
