@@ -12,7 +12,7 @@ if ( ! defined('EXT'))
  * @version   	1.0.0
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
  * @copyright 	Copyright (c) 2010, Stephen Lewis
- * @link      	http://experienceinternet.co.uk/dropdate/
+ * @link      	http://experienceinternet.co.uk/software/dropdate/
  */
 
 class Dropdate extends Fieldframe_Fieldtype {
@@ -43,7 +43,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 		'name'				=> 'DropDate',
 		'version'			=> '1.0.0',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
-		'docs_url'			=> 'http://experienceinternet.co.uk/dropdate/',
+		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
 	);
 
