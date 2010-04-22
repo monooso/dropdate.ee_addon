@@ -15,6 +15,7 @@ $L = array(
 'save_format_label'	=> 'Save Date As:',
 'unix_format_label'	=> 'UNIX timestamp',
 'ymd_format_label'	=> 'YYYYMMDD',
+'year_range_label'	=> 'Year range:',
 
 'year'	=> 'Year',
 'month'	=> 'Month',

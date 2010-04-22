@@ -64,7 +64,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 * @access	public
 	 * @var 	array
 	 */
-	public $default_site_settings = array('date_format' => self::DROPDATE_FMT_UNIX);
+	public $default_site_settings = array('date_format' => self::DROPDATE_FMT_UNIX, 'year_range' => '1900-2020');
 	
 	/**
 	 * The class name.
@@ -166,9 +166,32 @@ class Dropdate extends Fieldframe_Fieldtype {
 			$LANG->line('nov'), $LANG->line('dec')
 		);
 		
+		// @low: get year range from settings, replace 'now' with current year
+		// examples: '2000-2010' or '2010-now+5'
+		$year_range = isset($field_settings['year_range']) ? $field_settings['year_range'] : $this->site_settings['year_range'];
+		$year_range = str_replace('now', date('Y', time()), $year_range);
+		
+		// @low: read year range and optional modifier
+		if (preg_match('/^([0-9]{4})-([0-9]{4})((\+|-)\d+)?$/', $year_range, $matches))
+		{
+			$from_year	= (int) $matches[1];
+			$to_year	= (int) $matches[2];
+
+			// If there's a modifier, add it to $to_year
+			if (isset($matches[3]))
+			{
+				$to_year = $to_year + (int) $matches[3];
+			}
+		}
+		else
+		{
+			$from_year	= 1900;
+			$to_year	= 2020;
+		}
+		
 		// Years.
 		$years[] = $LANG->line('year');
-		for ($count = 1900; $count <= 2020; $count++)
+		for ($count = $from_year; $count <= $to_year; $count++)
 		{
 			$years[$count] = $count;
 		}
@@ -237,7 +260,9 @@ class Dropdate extends Fieldframe_Fieldtype {
 		);
 		
 		$html = '<div class="itemWrapper"><label class="defaultBold">' .$LANG->line('save_format_label') .'</label></div>'
-			.$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'));
+			.$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'))
+			. '<div class="itemWrapper" style="margin-top:10px"><label class="defaultBold">' .$LANG->line('year_range_label') .'</label></div>'
+			.$SD->text('year_range', (isset($field_settings['year_range'])?$field_settings['year_range']:$this->site_settings['year_range']), array('width' => '80px'));
 		
 		return array('cell2' => $html);
 	}
@@ -255,6 +280,8 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_tag($params = array(), $tagdata = '', $field_data = '', $field_settings = array())
 	{
+		global $LOC;
+
 		if (isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
 		{
 			$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
@@ -269,7 +296,16 @@ class Dropdate extends Fieldframe_Fieldtype {
 		}
 		
 		$params = array_merge(array('format' => 'U'), $params);
-		return date($params['format'], $field_data);
+
+		// @low: if there's a percentage sign in the format, use EE's native date function for language file use
+		if (strpos($params['format'], '%') === FALSE)
+		{
+			return date($params['format'], $field_data);
+		}
+		else
+		{
+			return $LOC->decode_date($params['format'], $field_data);
+		}
 	}
 	
 	
