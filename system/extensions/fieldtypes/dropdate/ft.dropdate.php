@@ -9,7 +9,7 @@ if ( ! defined('EXT'))
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
  * @package   	DropDate
- * @version   	1.0.0
+ * @version   	1.0.1
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
@@ -41,7 +41,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public $info = array(
 		'name'				=> 'DropDate',
-		'version'			=> '1.0.0',
+		'version'			=> '1.0.1',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
