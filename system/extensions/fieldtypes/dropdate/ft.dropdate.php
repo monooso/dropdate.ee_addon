@@ -238,6 +238,28 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_field_settings($field_settings = array())
 	{
+		$settings = $this->_get_settings($field_settings);
+		
+		$html = '';
+		
+		foreach ($settings AS $row)
+		{
+			$html .= '<div class="itemWrapper"><label class="defaultBold">'. $row[0] .'</label></div>'
+				  .  $row[1];
+		}
+		
+		return array('cell2' => $html);
+	}
+	
+	/**
+	 * Returns settings in a nested array for easy access
+	 *
+	 * @access	private
+	 * @param	array		$field_settings		Previously saved field settings.
+	 * @return	array
+	 */
+	private function _get_settings($field_settings = array())
+	{
 		global $LANG;
 		
 		$LANG->fetch_language_file($this->lower_class);
@@ -259,14 +281,17 @@ class Dropdate extends Fieldframe_Fieldtype {
 			self::DROPDATE_FMT_YMD	=> $LANG->line('ymd_format_label')
 		);
 		
-		$html = '<div class="itemWrapper"><label class="defaultBold">' .$LANG->line('save_format_label') .'</label></div>'
-			.$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'))
-			. '<div class="itemWrapper" style="margin-top:10px"><label class="defaultBold">' .$LANG->line('year_range_label') .'</label></div>'
-			.$SD->text('year_range', (isset($field_settings['year_range'])?$field_settings['year_range']:$this->site_settings['year_range']), array('width' => '80px'));
-		
-		return array('cell2' => $html);
+		return array(
+			array(
+				$LANG->line('save_format_label'),
+				$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'))
+			),
+			array(
+				$LANG->line('year_range_label'),
+				$SD->text('year_range', (isset($field_settings['year_range'])?$field_settings['year_range']:$this->site_settings['year_range']), array('width' => '80px'))
+			)
+		);
 	}
-	
 	
 	/**
 	 * Displays the field data in a template tag.
@@ -360,6 +385,60 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return $date;
 	}
 	
+	/**
+	 * Displays the custom field HTML for the Low Variables module home page.
+	 *
+	 * @access	public
+	 * @param	string		$var_name			The variable name.
+	 * @param	string		$var_data			Previously saved variable data.
+	 * @param 	array 		$car_settings		The variable settings.
+	 * @return	string
+	 */
+	public function display_var_field($var_name = '', $var_data = '', $var_settings = array())
+	{
+		return $this->display_field($var_name, $var_data, $var_settings);
+	}
+	
+	/**
+	 * Adds custom settings to a Low Variables instance.
+	 *
+	 * @access	public
+	 * @param	array		$var_settings		Previously saved var settings.
+	 * @return	string
+	 */
+	public function display_var_settings($var_settings = array())
+	{
+		return $this->_get_settings($var_settings);
+	}
+	
+	/**
+	 * Return dropdate settings for in LV format
+	 */
+	public function save_var_settings($var_settings = array())
+	{
+		global $IN;
+
+		return array(
+			'date_format' => $IN->GBL('date_format', 'POST'),
+			'year_range' => $IN->GBL('year_range', 'POST')
+		);
+	}
+	
+	/**
+	 * Save LV field
+	 */
+	public function save_var_field($var_data, $var_settings)
+	{
+		return $this->save_field($var_data, $var_settings);
+	}
+	
+	/**
+	 * Display LV field
+	 */
+	public function display_var_tag($params = array(), $tagdata = '', $var_data = '', $var_settings = array())
+	{
+		return $this->display_tag($params, $tagdata, $var_data, $var_settings);
+	}
 	
 }
 
