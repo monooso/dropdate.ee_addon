@@ -9,8 +9,9 @@ if ( ! defined('EXT'))
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
  * @package   	DropDate
- * @version   	1.0.1
+ * @version   	1.1.0
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
+ * @author		Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
  */
@@ -41,7 +42,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public $info = array(
 		'name'				=> 'DropDate',
-		'version'			=> '1.0.1',
+		'version'			=> '1.1.0',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
@@ -244,8 +245,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 		
 		foreach ($settings AS $row)
 		{
-			$html .= '<div class="itemWrapper"><label class="defaultBold">'. $row[0] .'</label></div>'
-				  .  $row[1];
+			$html .= '<div class="itemWrapper"><label class="defaultBold">'. $row[0] .'</label></div>' .$row[1];
 		}
 		
 		return array('cell2' => $html);
@@ -385,13 +385,15 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return $date;
 	}
 	
+	
 	/**
 	 * Displays the custom field HTML for the Low Variables module home page.
 	 *
+	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param	string		$var_name			The variable name.
 	 * @param	string		$var_data			Previously saved variable data.
-	 * @param 	array 		$car_settings		The variable settings.
+	 * @param 	array 		$var_settings		The variable settings.
 	 * @return	string
 	 */
 	public function display_var_field($var_name = '', $var_data = '', $var_settings = array())
@@ -399,11 +401,13 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return $this->display_field($var_name, $var_data, $var_settings);
 	}
 	
+	
 	/**
 	 * Adds custom settings to a Low Variables instance.
 	 *
+	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
-	 * @param	array		$var_settings		Previously saved var settings.
+	 * @param	array		$var_settings		Previously-saved variable settings.
 	 * @return	string
 	 */
 	public function display_var_settings($var_settings = array())
@@ -411,29 +415,51 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return $this->_get_settings($var_settings);
 	}
 	
+	
 	/**
-	 * Return dropdate settings for in LV format
+	 * Return dropdate settings in Low Variables format.
+	 *
+	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
+	 * @access	public
+	 * @param 	array 		$var_settings		Previously-saved variable settings.
+	 * @return 	array
 	 */
 	public function save_var_settings($var_settings = array())
 	{
 		global $IN;
 
 		return array(
-			'date_format' => $IN->GBL('date_format', 'POST'),
-			'year_range' => $IN->GBL('year_range', 'POST')
+			'date_format'	=> $IN->GBL('date_format', 'POST'),
+			'year_range'	=> $IN->GBL('year_range', 'POST')
 		);
 	}
 	
+	
 	/**
-	 * Save LV field
+	 * Save Low Variables field.
+	 *
+	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
+	 * @access	public
+	 * @param 	string 		$var_data			Previously-saved variable data.
+	 * @param 	array 		$var_settings		Previously-saved variable settings.
+	 * @return 	string
 	 */
 	public function save_var_field($var_data, $var_settings)
 	{
 		return $this->save_field($var_data, $var_settings);
 	}
 	
+	
 	/**
-	 * Display LV field
+	 * Display Low Variables field.
+	 *
+	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
+	 * @access	public
+	 * @param 	array 		$params				Tag parameters.
+	 * @param 	string 		$tagdata			Tag data.
+	 * @param 	string		$var_data			Previously-saved variable data.
+	 * @param 	array 		$var_settings		Previously-saved variable settings.
+	 * @return 	string
 	 */
 	public function display_var_tag($params = array(), $tagdata = '', $var_data = '', $var_settings = array())
 	{
