@@ -233,7 +233,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 				$saved_year		= $field_data[2];
 				
 			}
-			elseif ($field_data && isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
+			elseif (isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
 			{
 				// Previously-saved data, in YMD format.
 				$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
