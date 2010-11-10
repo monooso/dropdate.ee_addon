@@ -9,7 +9,7 @@ if ( ! defined('EXT'))
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
  * @package   	DropDate
- * @version   	1.1.0
+ * @version   	1.1.1
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
  * @author		Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright 	Copyright (c) 2010, Stephen Lewis
@@ -42,7 +42,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public $info = array(
 		'name'				=> 'DropDate',
-		'version'			=> '1.1.0',
+		'version'			=> '1.1.1',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
@@ -144,7 +144,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function display_field($field_name = '', $field_data = '', $field_settings = array())
 	{
-		global $DSP, $LANG;
+		global $DSP, $IN, $LANG;
 		
 		$LANG->fetch_language_file($this->lower_class);
 		$SD = new Fieldframe_SettingsDisplay();
@@ -167,12 +167,24 @@ class Dropdate extends Fieldframe_Fieldtype {
 			$LANG->line('nov'), $LANG->line('dec')
 		);
 		
-		// @low: get year range from settings, replace 'now' with current year
-		// examples: '2000-2010' or '2010-now+5'
+		/**
+		 * Get year range from settings. Replace 'now' with current year.
+		 * Examples: '2000-2010' or '2010-now+5'
+		 *
+		 * @author	Lodewijk Schutte (http://github.com/lodewijk)
+		 * @since	1.0.1
+		 */
+		
 		$year_range = isset($field_settings['year_range']) ? $field_settings['year_range'] : $this->site_settings['year_range'];
 		$year_range = str_replace('now', date('Y', time()), $year_range);
 		
-		// @low: read year range and optional modifier
+		/**
+		 * Read year range and optional modifier.
+		 *
+		 * @author	Lodewijk Schutte (http://github.com/lodewijk)
+		 * @since	1.0.1
+		 */
+		
 		if (preg_match('/^([0-9]{4})-([0-9]{4})((\+|-)\d+)?$/', $year_range, $matches))
 		{
 			$from_year	= (int) $matches[1];
@@ -197,13 +209,33 @@ class Dropdate extends Fieldframe_Fieldtype {
 			$years[$count] = $count;
 		}
 		
-		// Determine the existing day / month / year values.
+		/**
+		 * There are 4 situations to deal with:
+		 * 1. There is no previously-saved OR previously-submitted field data.
+		 * 2. There is no previously-saved data, BUT data was submitted (occurs when required fields are not filled out).
+		 * 3. There is previously-saved data, in YMD format.
+		 * 4. There is previously-saved data, in UNIX format.
+		 *
+		 * @since	1.1.1
+		 * @author	Stephen Lewis <addons@experienceinternet.co.uk>
+		 */
+		
+		// We start by assuming there is no previously-saved data OR submitted data.
 		$saved_year = $saved_month = $saved_day = '';
 		
 		if ($field_data)
 		{
-			if (isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
+			if (is_array($field_data) && count($field_data) == 3)
 			{
+				// No previously-saved data, BUT submitted data.
+				$saved_day		= $field_data[0];
+				$saved_month	= $field_data[1];
+				$saved_year		= $field_data[2];
+				
+			}
+			elseif ($field_data && isset($field_settings['date_format']) && $field_settings['date_format'] == self::DROPDATE_FMT_YMD)
+			{
+				// Previously-saved data, in YMD format.
 				$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
 				if (preg_match($pattern, $field_data, $matches))
 				{
@@ -211,13 +243,16 @@ class Dropdate extends Fieldframe_Fieldtype {
 					$saved_month	= $matches[2];
 					$saved_day		= $matches[3];
 				}
+				
 			}
 			else
 			{
+				// Previously-saved data, in UNIX format.
 				$saved_year 	= date('Y', $field_data);
 				$saved_month	= date('n', $field_data);
 				$saved_day		= date('j', $field_data);
 			}
+			
 		}
 		
 		// Generate the HTML.
@@ -251,47 +286,6 @@ class Dropdate extends Fieldframe_Fieldtype {
 		return array('cell2' => $html);
 	}
 	
-	/**
-	 * Returns settings in a nested array for easy access
-	 *
-	 * @access	private
-	 * @param	array		$field_settings		Previously saved field settings.
-	 * @return	array
-	 */
-	private function _get_settings($field_settings = array())
-	{
-		global $LANG;
-		
-		$LANG->fetch_language_file($this->lower_class);
-		$SD = new Fieldframe_SettingsDisplay();
-		
-		if (isset($field_settings['date_format']))
-		{
-			$value = $field_settings['date_format'];
-		}
-		else
-		{
-			$value = isset($this->site_settings['date_format'])
-				? $this->site_settings['date_format']
-				: '';
-		}
-		
-		$options = array(
-			self::DROPDATE_FMT_UNIX => $LANG->line('unix_format_label'),
-			self::DROPDATE_FMT_YMD	=> $LANG->line('ymd_format_label')
-		);
-		
-		return array(
-			array(
-				$LANG->line('save_format_label'),
-				$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'))
-			),
-			array(
-				$LANG->line('year_range_label'),
-				$SD->text('year_range', (isset($field_settings['year_range'])?$field_settings['year_range']:$this->site_settings['year_range']), array('width' => '80px'))
-			)
-		);
-	}
 	
 	/**
 	 * Displays the field data in a template tag.
@@ -360,6 +354,21 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function save_field($field_data = '', $field_settings = array(), $entry_id = FALSE)
 	{
+		/**
+		 * If there is no entry ID, this is either a Quick Save, or an error.
+		 *
+		 * Either way, return the raw field data, otherwise the display_field
+		 * method is unable to display the previously-selected dates.
+		 *
+		 * @since	1.1.1
+		 * @author	Stephen Lewis <addons@experienceinternet.co.uk>
+		 */
+		
+		if ( ! $entry_id)
+		{
+			return $field_data;
+		}
+		
 		if ( ! is_array($field_data)
 			OR count($field_data) != 3
 			OR ! $field_data[0]
@@ -389,6 +398,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	/**
 	 * Displays the custom field HTML for the Low Variables module home page.
 	 *
+	 * @since 	1.1.0
 	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param	string		$var_name			The variable name.
@@ -405,6 +415,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	/**
 	 * Adds custom settings to a Low Variables instance.
 	 *
+	 * @since 	1.1.0
 	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param	array		$var_settings		Previously-saved variable settings.
@@ -419,6 +430,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	/**
 	 * Return dropdate settings in Low Variables format.
 	 *
+	 * @since 	1.1.0
 	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param 	array 		$var_settings		Previously-saved variable settings.
@@ -438,6 +450,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	/**
 	 * Save Low Variables field.
 	 *
+	 * @since 	1.1.0
 	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param 	string 		$var_data			Previously-saved variable data.
@@ -453,6 +466,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	/**
 	 * Display Low Variables field.
 	 *
+	 * @since 	1.1.0
 	 * @author	Lodewijk Schutte (http://github.com/lodewijk)
 	 * @access	public
 	 * @param 	array 		$params				Tag parameters.
@@ -464,6 +478,54 @@ class Dropdate extends Fieldframe_Fieldtype {
 	public function display_var_tag($params = array(), $tagdata = '', $var_data = '', $var_settings = array())
 	{
 		return $this->display_tag($params, $tagdata, $var_data, $var_settings);
+	}
+	
+	
+	
+	/* --------------------------------------------------------------
+	 * PRIVATE METHODS
+	 * ------------------------------------------------------------ */
+	
+	/**
+	 * Returns settings in a nested array for easy access
+	 *
+	 * @access	private
+	 * @param	array		$field_settings		Previously saved field settings.
+	 * @return	array
+	 */
+	private function _get_settings($field_settings = array())
+	{
+		global $LANG;
+		
+		$LANG->fetch_language_file($this->lower_class);
+		$SD = new Fieldframe_SettingsDisplay();
+		
+		if (isset($field_settings['date_format']))
+		{
+			$value = $field_settings['date_format'];
+		}
+		else
+		{
+			$value = isset($this->site_settings['date_format'])
+				? $this->site_settings['date_format']
+				: '';
+		}
+		
+		$options = array(
+			self::DROPDATE_FMT_UNIX => $LANG->line('unix_format_label'),
+			self::DROPDATE_FMT_YMD	=> $LANG->line('ymd_format_label')
+		);
+		
+		return array(
+			array(
+				$LANG->line('save_format_label'),
+				$SD->radio_group('date_format', $value, $options, array('extras' => ' style="width : auto;"'))
+			),
+			array(
+				$LANG->line('year_range_label'),
+				$SD->text('year_range', (isset($field_settings['year_range'])?$field_settings['year_range']:$this->site_settings['year_range']), array('width' => '80px'))
+			)
+		);
 	}
 	
 }
