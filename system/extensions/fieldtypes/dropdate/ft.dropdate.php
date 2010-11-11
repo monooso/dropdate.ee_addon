@@ -1,15 +1,10 @@
-<?php
-
-if ( ! defined('EXT'))
-{
-	exit('Invalid file request');
-}
+<?php if ( ! defined('EXT')) exit('Invalid file request');
 
 /**
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
  * @package   	DropDate
- * @version   	1.1.1
+ * @version   	1.1.2
  * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
  * @author		Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright 	Copyright (c) 2010, Stephen Lewis
@@ -28,9 +23,31 @@ class Dropdate extends Fieldframe_Fieldtype {
 	const DROPDATE_FMT_YMD	= 'ymd';
 	
 	
+	/* --------------------------------------------------------------
+	 * PRIVATE PROPERTIES
+	 * ------------------------------------------------------------ */
+	
+	/**
+	 * The class name.
+	 *
+	 * @access	private
+	 * @var 	string
+	 */
+	private $class = '';
+	
+	/**
+	 * Lower-class classname.
+	 *
+	 * @access	private
+	 * @var 	string
+	 */
+	private $lower_class = '';
+	
+	
+	
 	/**
 	 * --------------------------------------------------------------
-	 * INSTANCE VARIABLES
+	 * PUBLIC PROPERTIES
 	 * --------------------------------------------------------------
 	 */
 	
@@ -42,11 +59,19 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public $info = array(
 		'name'				=> 'DropDate',
-		'version'			=> '1.1.1',
+		'version'			=> '1.1.2',
 		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/',
 		'versions_xml_url'	=> 'http://experienceinternet.co.uk/addon-versions.xml'
 	);
+	
+	/**
+	 * Enable 'postponed saving'.
+	 *
+	 * @access	public
+	 * @var		bool
+	 */
+	public $postpone_saves = TRUE;
 
 	/**
 	 * Fieldtype requirements.
@@ -66,22 +91,6 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 * @var 	array
 	 */
 	public $default_site_settings = array('date_format' => self::DROPDATE_FMT_UNIX, 'year_range' => '1900-2020');
-	
-	/**
-	 * The class name.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $class = '';
-	
-	/**
-	 * Lower-class classname.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $lower_class = '';
 	
 	
 	
