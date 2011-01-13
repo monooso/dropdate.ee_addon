@@ -470,6 +470,26 @@ class Dropdate_ft extends EE_Fieldtype {
 	}
 	
 	
+	/**
+	 * Install fieldtype
+	 *
+	 * Check to see if FF2EE2 exists to migrate existing fields
+	 */
+	function install()
+	{
+		$ff2ee2_file = PATH_THIRD.'pt_field_pack/ff2ee2/ff2ee2.php';
+		
+		if ( ! class_exists('FF2EE2') && file_exists($ff2ee2_file))
+		{
+			require $ff2ee2_file;
+		}
+
+		if (class_exists('FF2EE2'))
+		{
+			new FF2EE2('dropdate');
+		}
+	}
+	
 	
 	/* --------------------------------------------------------------
 	 * PRIVATE METHODS
@@ -498,10 +518,12 @@ class Dropdate_ft extends EE_Fieldtype {
 			array(
 				lang('save_format_label'),
 				 '<label style="margin-right:20px">'
-				.	form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX)) .' '. $this->ee->lang->line('unix_format_label')
+				.	form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
+				.	' '. $this->ee->lang->line('unix_format_label')
 				.'</label>'
 				.'<label>'
-				.	form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD)) .' '. $this->ee->lang->line('ymd_format_label')
+				.	form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
+				.	' '. $this->ee->lang->line('ymd_format_label')
 				.'</label>'
 			),
 			array(
