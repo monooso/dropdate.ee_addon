@@ -400,9 +400,9 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	array 		$var_settings		The variable settings.
 	 * @return	string
 	 */
-	public function display_var_field($var_name = '', $var_data = '', $var_settings = array())
+	public function display_var_field($var_data = '')
 	{
-		return $this->display_field($var_name, $var_data, $var_settings);
+		return $this->display_field($var_data);
 	}
 	
 	
@@ -446,9 +446,9 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	array 		$var_settings		Previously-saved variable settings.
 	 * @return 	string
 	 */
-	public function save_var_field($var_data, $var_settings)
+	public function save_var_field($var_data = '')
 	{
-		return $this->save($var_data, $var_settings);
+		return $this->save($var_data);
 	}
 	
 	
