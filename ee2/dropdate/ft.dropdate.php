@@ -8,7 +8,7 @@
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
  * @package   	DropDate
- * @version   	2.0.0
+ * @version   	2.0.1
  */
 
 class Dropdate_ft extends EE_Fieldtype {
@@ -22,7 +22,7 @@ class Dropdate_ft extends EE_Fieldtype {
 
 	public $info = array(
 		'name'		=> 'DropDate',
-		'version'	=> '2.0.0',
+		'version'	=> '2.0.1',
 		'desc'		=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'	=> 'http://experienceinternet.co.uk/software/dropdate/'
 	);
@@ -145,12 +145,23 @@ class Dropdate_ft extends EE_Fieldtype {
 			$from_year	= 1900;
 			$to_year	= 2020;
 		}
+
 		
-		// Years.
-		$years[] = lang('year');
-		for ($count = $from_year; $count <= $to_year; $count++)
-		{
-			$years[$count] = $count;
+        /**
+         * Implement support for counting backwards (e.g. 2020-1990).
+         *
+         * @author  Stephen Lewis
+         * @since   2.0.1
+         */
+
+		$years[]        = lang('year');
+        $year_step      = $from_year > $to_year ? -1 : 1;
+        $year_counter   = $from_year;
+
+        while ($year_counter != ($to_year + $year_step))
+        {
+			$years[$year_counter] = $year_counter;
+            $year_counter += $year_step;
 		}
 		
 		/**
