@@ -129,16 +129,22 @@ class Dropdate_ft extends EE_Fieldtype {
 		 * @since	1.0.1
 		 */
 		
-		if (preg_match('/^([0-9]{4})-([0-9]{4})((\+|-)\d+)?$/', $year_range, $matches))
+		if (preg_match('/^([0-9]{4})([\+|\-]{1}\d+)?-([0-9]{4})([\+|\-]{1}\d+)?$/', $year_range, $matches))
 		{
-			$from_year	= (int) $matches[1];
-			$to_year	= (int) $matches[2];
+            /**
+             * $from_year modifier implemented in version 2.0.2.
+             *
+             * @author  Stephen Lewis
+             * @since   2.0.2
+             */
 
-			// If there's a modifier, add it to $to_year
-			if (isset($matches[3]))
-			{
-				$to_year = $to_year + (int) $matches[3];
-			}
+            $from_year = isset($matches[2])
+                ? (int) $matches[1] + (int) $matches[2]
+                : (int) $matches[1];
+
+            $to_year = isset($matches[4])
+                ? (int) $matches[3] + (int) $matches[4]
+                : (int) $matches[3];
 		}
 		else
 		{
