@@ -3,87 +3,31 @@
 /**
  * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
  *
- * @package   	DropDate
- * @version   	2.0.0
- * @author    	Stephen Lewis <addons@experienceinternet.co.uk>
+ * @author    	Stephen Lewis (http://experienceinternet.co.uk/software/)
  * @author		Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
+ * @package   	DropDate
+ * @version   	2.0.0
  */
 
 class Dropdate_ft extends EE_Fieldtype {
 	
-	/**
-	 * --------------------------------------------------------------
-	 * CLASS CONSTANTS
-	 * --------------------------------------------------------------
-	 */
-	
 	const DROPDATE_FMT_UNIX = 'unix';
 	const DROPDATE_FMT_YMD	= 'ymd';
 	
-	
-	/* --------------------------------------------------------------
-	 * PRIVATE PROPERTIES
-	 * ------------------------------------------------------------ */
-	
-	/**
-	 * The class name.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $class = '';
-	
-	/**
-	 * Lower-class classname.
-	 *
-	 * @access	private
-	 * @var 	string
-	 */
-	private $lower_class = '';
-	
-	/**
-	 * The ExpressionEngine instance.
-	 *
-	 * @access	private
-	 * @var 	object
-	 */
-	private $ee;
-	
-	/**
-	 * --------------------------------------------------------------
-	 * PUBLIC PROPERTIES
-	 * --------------------------------------------------------------
-	 */
-	
-	/**
-	 * Basic fieldtype information.
-	 *
-	 * @access	public
-	 * @var 	array
-	 */
+	private $_class;
+	private $_lower_class;
+	private $_ee;
+
 	public $info = array(
-		'name'				=> 'DropDate',
-		'version'			=> '2.0.0',
-		'desc'				=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
-		'docs_url'			=> 'http://experienceinternet.co.uk/software/dropdate/'
+		'name'		=> 'DropDate',
+		'version'	=> '2.0.0',
+		'desc'		=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
+		'docs_url'	=> 'http://experienceinternet.co.uk/software/dropdate/'
 	);
 	
-	/**
-	 * Enable 'postponed saving'.
-	 *
-	 * @access	public
-	 * @var		bool
-	 */
 	public $postpone_saves = TRUE;
-
-	/**
-	 * Default settings.
-	 *
-	 * @access	public
-	 * @var 	array
-	 */
 	public $default_settings = array('date_format' => self::DROPDATE_FMT_UNIX, 'year_range' => '1900-2020');
 	
 	
@@ -104,9 +48,9 @@ class Dropdate_ft extends EE_Fieldtype {
 	{
 		parent::EE_Fieldtype();
 
-		$this->class 		= get_class($this);
-		$this->lower_class 	= strtolower($this->class);
-		$this->ee			=& get_instance();
+		$this->_ee			    =& get_instance();
+		$this->_class 		    = get_class($this);
+		$this->_lower_class 	= strtolower($this->_class);
 	}
 	
 	
@@ -117,7 +61,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param	array		$cell_settings		Previously saved cell settings.
 	 * @return	void
 	 */
-	public function display_cell_settings($cell_settings = array())
+	public function display_cell_settings(Array $cell_settings = array())
 	{
 		return $this->_get_settings($cell_settings);
 	}
@@ -145,7 +89,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 */
 	public function display_field($field_data = '', $cell = FALSE)
 	{
-		$this->ee->lang->loadfile('dropdate');
+		$this->_ee->lang->loadfile('dropdate');
 		
 		$field_name = $cell ? $this->cell_name : $this->field_name;
 		
@@ -243,7 +187,6 @@ class Dropdate_ft extends EE_Fieldtype {
 					$saved_month	= $matches[2];
 					$saved_day		= $matches[3];
 				}
-				
 			}
 			else
 			{
@@ -272,16 +215,13 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param	array		$field_settings		Previously saved field settings.
 	 * @return	array
 	 */
-	public function display_settings($field_settings = array())
+	public function display_settings(Array $field_settings = array())
 	{
 		$settings = $this->_get_settings($field_settings);
 		
 		foreach ($settings AS $row)
 		{
-			$this->ee->table->add_row(
-				'<strong>'. $row[0] .'</strong>',
-				$row[1]
-			);
+			$this->_ee->table->add_row('<strong>'. $row[0] .'</strong>', $row[1]);
 		}
 	}
 	
@@ -296,7 +236,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	array 		$field_settings		The field settings.
 	 * @return	string
 	 */
-	public function replace_tag($field_data = '', $params = array(), $tagdata = '')
+	public function replace_tag($field_data = '', Array $params = array(), $tagdata = '')
 	{
 		if (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
 		{
@@ -320,7 +260,7 @@ class Dropdate_ft extends EE_Fieldtype {
 		}
 		else
 		{
-			return $this->ee->localize->decode_date($params['format'], $field_data);
+			return $this->_ee->localize->decode_date($params['format'], $field_data);
 		}
 	}
 	
@@ -334,7 +274,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	mixed		$entry_id			The entry ID (if postponed saving is enabled), or FALSE.
 	 * @return	string
 	 */
-	public function save_cell($cell_data = '', $cell_settings = array(), $entry_id = FALSE)
+	public function save_cell($cell_data = '', Array $cell_settings = array(), $entry_id = FALSE)
 	{
 		return $this->save($cell_data);
 	}
@@ -384,11 +324,12 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param	array		$field_settings		The field settings.
 	 * @return	array
 	 */
-	public function save_settings($field_settings = array())
+	public function save_settings(Array $field_settings = array())
 	{
 		return $this->_get_posted_settings();
 	}
 	
+
 	/**
 	 * Displays the custom field HTML for the Low Variables module home page.
 	 *
@@ -415,7 +356,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param	array		$var_settings		Previously-saved variable settings.
 	 * @return	string
 	 */
-	public function display_var_settings($var_settings = array())
+	public function display_var_settings(Array $var_settings = array())
 	{
 		return $this->_get_settings($var_settings);
 	}
@@ -430,7 +371,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	array 		$var_settings		Previously-saved variable settings.
 	 * @return 	array
 	 */
-	public function save_var_settings($var_settings = array())
+	public function save_var_settings(Array $var_settings = array())
 	{
 		return $this->_get_posted_settings();
 	}
@@ -464,7 +405,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param 	array 		$var_settings		Previously-saved variable settings.
 	 * @return 	string
 	 */
-	public function display_var_tag($var_data = '', $params = array(), $tagdata = '')
+	public function display_var_tag($var_data = '', Array $params = array(), $tagdata = '')
 	{
 		return $this->replace_tag($var_data, $params, $tagdata);
 	}
@@ -502,9 +443,9 @@ class Dropdate_ft extends EE_Fieldtype {
 	 * @param	array		$field_settings		Previously saved field settings.
 	 * @return	array
 	 */
-	private function _get_settings($field_settings = array())
+	private function _get_settings(Array $field_settings = array())
 	{
-		$this->ee->lang->loadfile('dropdate');
+		$this->_ee->lang->loadfile('dropdate');
 		
 		foreach ($this->default_settings AS $setting => $value)
 		{
@@ -519,11 +460,11 @@ class Dropdate_ft extends EE_Fieldtype {
 				lang('save_format_label'),
 				 '<label style="margin-right:20px">'
 				.	form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
-				.	' '. $this->ee->lang->line('unix_format_label')
+				.	' '. $this->_ee->lang->line('unix_format_label')
 				.'</label>'
 				.'<label>'
 				.	form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
-				.	' '. $this->ee->lang->line('ymd_format_label')
+				.	' '. $this->_ee->lang->line('ymd_format_label')
 				.'</label>'
 			),
 			array(
@@ -549,7 +490,7 @@ class Dropdate_ft extends EE_Fieldtype {
 		
 		foreach ($this->default_settings AS $setting => $value)
 		{
-			if (($settings[$setting] = $this->ee->input->post($setting)) === FALSE)
+			if (($settings[$setting] = $this->_ee->input->post($setting)) === FALSE)
 			{
 				$settings[$setting] = $value;
 			}
