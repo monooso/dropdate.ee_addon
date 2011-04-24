@@ -8,7 +8,7 @@
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
  * @package   	DropDate
- * @version   	2.0.1
+ * @version   	2.0.2
  */
 
 class Dropdate_ft extends EE_Fieldtype {
@@ -22,7 +22,7 @@ class Dropdate_ft extends EE_Fieldtype {
 
 	public $info = array(
 		'name'		=> 'DropDate',
-		'version'	=> '2.0.1',
+		'version'	=> '2.0.2',
 		'desc'		=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
 		'docs_url'	=> 'http://experienceinternet.co.uk/software/dropdate/'
 	);
