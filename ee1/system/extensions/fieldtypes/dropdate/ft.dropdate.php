@@ -468,7 +468,7 @@ class Dropdate extends Fieldframe_Fieldtype {
 	 */
 	public function save_var_field($var_data, $var_settings)
 	{
-		return $this->save_field($var_data, $var_settings);
+		return $this->save_field($var_data, $var_settings, TRUE);
 	}
 	
 	
