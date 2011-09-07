@@ -16,10 +16,17 @@ $lang = array(
 'unix_format_label'	=> 'UNIX timestamp',
 'ymd_format_label'	=> 'YYYYMMDD',
 'year_range_label'	=> 'Year range:',
+'show_time_label'	=> 'Show time?',
+
+'show_time_no'	=> 'Don’t show time',
+'show_time_5'	=> 'Yes, in 5 minute intervals',
+'show_time_15'	=> 'Yes, in 15 minute intervals',
 
 'year'	=> 'Year',
 'month'	=> 'Month',
 'day'	=> 'Day',
+'hour'	=> 'Hour',
+'minute'=> 'Minute',
 	
 // Months.
 'jan'	=> 'January',
