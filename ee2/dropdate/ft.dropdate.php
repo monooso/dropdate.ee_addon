@@ -1,14 +1,14 @@
 <?php if ( ! defined('EXT')) exit('Invalid file request');
 
 /**
- * Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).
+ * Fieldtype enabling users to select a date using 3 or 5 drop-downs (day, month, year[, hour, minute]).
  *
  * @author    	Stephen Lewis (http://experienceinternet.co.uk/software/)
  * @author		Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright 	Copyright (c) 2010, Stephen Lewis
  * @link      	http://experienceinternet.co.uk/software/dropdate/
  * @package   	DropDate
- * @version   	2.0.2
+ * @version   	2.1.0
  */
 
 class Dropdate_ft extends EE_Fieldtype {
@@ -19,16 +19,17 @@ class Dropdate_ft extends EE_Fieldtype {
 	private $_class;
 	private $_lower_class;
 	private $_ee;
+	private $_time_format;
 
 	public $info = array(
 		'name'		=> 'DropDate',
-		'version'	=> '2.0.2',
-		'desc'		=> 'Fieldtype enabling users to select a date using 3 drop-downs (day, month, year).',
+		'version'	=> '2.1.0',
+		'desc'		=> 'Fieldtype enabling users to select a date using 3 or 5 drop-downs (day, month, year[, hour, minute]).',
 		'docs_url'	=> 'http://experienceinternet.co.uk/software/dropdate/'
 	);
 	
 	public $postpone_saves = TRUE;
-	public $default_settings = array('date_format' => self::DROPDATE_FMT_UNIX, 'year_range' => '1900-2020');
+	public $default_settings = array('date_format' => self::DROPDATE_FMT_UNIX, 'year_range' => '1900-2020', 'show_time' => '');
 	
 	
 	
@@ -51,6 +52,7 @@ class Dropdate_ft extends EE_Fieldtype {
 		$this->_ee			    =& get_instance();
 		$this->_class 		    = get_class($this);
 		$this->_lower_class 	= strtolower($this->_class);
+		$this->_time_format		= $this->_ee->config->item('time_format');
 	}
 	
 	
@@ -131,20 +133,20 @@ class Dropdate_ft extends EE_Fieldtype {
 		
 		if (preg_match('/^([0-9]{4})([\+|\-]{1}\d+)?-([0-9]{4})([\+|\-]{1}\d+)?$/', $year_range, $matches))
 		{
-            /**
-             * $from_year modifier implemented in version 2.0.2.
-             *
-             * @author  Stephen Lewis
-             * @since   2.0.2
-             */
+			/**
+			 * $from_year modifier implemented in version 2.0.2.
+			 *
+			 * @author  Stephen Lewis
+			 * @since   2.0.2
+			 */
 
-            $from_year = isset($matches[2])
-                ? (int) $matches[1] + (int) $matches[2]
-                : (int) $matches[1];
+			$from_year = isset($matches[2])
+			    ? (int) $matches[1] + (int) $matches[2]
+			    : (int) $matches[1];
 
-            $to_year = isset($matches[4])
-                ? (int) $matches[3] + (int) $matches[4]
-                : (int) $matches[3];
+			$to_year = isset($matches[4])
+			    ? (int) $matches[3] + (int) $matches[4]
+			    : (int) $matches[3];
 		}
 		else
 		{
@@ -152,24 +154,57 @@ class Dropdate_ft extends EE_Fieldtype {
 			$to_year	= 2020;
 		}
 
-		
-        /**
-         * Implement support for counting backwards (e.g. 2020-1990).
-         *
-         * @author  Stephen Lewis
-         * @since   2.0.1
-         */
+		/**
+		 * Implement support for counting backwards (e.g. 2020-1990).
+		 *
+		 * @author  Stephen Lewis
+		 * @since   2.0.1
+		 */
 
 		$years[]        = lang('year');
-        $year_step      = $from_year > $to_year ? -1 : 1;
-        $year_counter   = $from_year;
+		$year_step      = $from_year > $to_year ? -1 : 1;
+		$year_counter   = $from_year;
 
-        while ($year_counter != ($to_year + $year_step))
-        {
+		while ($year_counter != ($to_year + $year_step))
+		{
 			$years[$year_counter] = $year_counter;
-            $year_counter += $year_step;
+			$year_counter += $year_step;
 		}
-		
+
+		/**
+		 * Hours and minutes.
+		 *
+		 * @author  Lodewijk Schutte
+		 * @since   2.0.3
+		 */
+
+		$hours = $minutes = array();
+
+		if (isset($this->settings['show_time']) && is_numeric($this->settings['show_time']))
+		{
+			$hours[]   = lang('hour');
+			$minutes[] = lang('minute');
+
+			// Force minute interval to be an integer
+			$interval = (int) $this->settings['show_time'];
+
+			// Based on time format, show amount of hours
+			$from_hour = ($this->_time_format == 'eu') ?  0 :  1;
+			$to_hour   = ($this->_time_format == 'eu') ? 23 : 12;
+
+			for ($hour = $from_hour; $hour <= $to_hour; $hour++)
+			{
+				$h = str_pad($hour, 2, '0', STR_PAD_LEFT);
+				$hours[$h] = $h;
+			}
+			
+			for ($minute = 0; $minute < 60; $minute += $interval)
+			{
+				$m = str_pad($minute, 2, '0', STR_PAD_LEFT);
+				$minutes[$m] = $m;
+			}
+		}
+
 		/**
 		 * There are 4 situations to deal with:
 		 * 1. There is no previously-saved OR previously-submitted field data.
@@ -182,27 +217,40 @@ class Dropdate_ft extends EE_Fieldtype {
 		 */
 		
 		// We start by assuming there is no previously-saved data OR submitted data.
-		$saved_year = $saved_month = $saved_day = '';
+		$saved_year = $saved_month = $saved_day = $saved_hour = $saved_minute = $saved_ampm = '';
 
 		if ($field_data)
 		{
-			if (is_array($field_data) && count($field_data) == 3)
+			if ( is_array($field_data) && in_array(count($field_data), array(3,5,6)) )
 			{
 				// No previously-saved data, BUT submitted data.
 				$saved_day		= $field_data[0];
 				$saved_month	= $field_data[1];
 				$saved_year		= $field_data[2];
+				$saved_hour		= @$field_data[3];
+				$saved_minute	= @$field_data[4];
+				$saved_ampm		= @$field_data[5];
 				
 			}
 			elseif (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
 			{
 				// Previously-saved data, in YMD format.
-				$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
+				$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})(([0-9]{2})([0-9]{2}))?$/';
 				if (preg_match($pattern, $field_data, $matches))
 				{
 					$saved_year		= $matches[1];
 					$saved_month	= $matches[2];
 					$saved_day		= $matches[3];
+					$saved_hour		= @$matches[5];
+					$saved_minute	= @$matches[6];
+
+					// Convert 24h to 12h format
+					if ($this->_time_format == 'us' && $saved_hour !== FALSE && strlen($saved_hour))
+					{
+						$time = "{$saved_hour}:{$saved_minute}";
+						$saved_hour = date('h', strtotime($time));
+						$saved_ampm = date('A', strtotime($time));
+					}
 				}
 			}
 			else
@@ -211,17 +259,42 @@ class Dropdate_ft extends EE_Fieldtype {
 				$saved_year 	= date('Y', $field_data);
 				$saved_month	= date('n', $field_data);
 				$saved_day		= date('j', $field_data);
+				$saved_hour		= date(($this->_time_format == 'eu' ? 'H' : 'h'), $field_data);
+				$saved_minute	= date('i', $field_data);
+				$saved_ampm		= date('A', $field_data);
 			}
 			
 		}
-		
-		// Generate the HTML.
-		return ''
+
+		// Begin building output.
+		$output = ''
 			. form_dropdown($field_name ."[]", $days, $saved_day)
 			. NBS
 			. form_dropdown($field_name ."[]", $months, $saved_month)
 			. NBS
 			. form_dropdown($field_name ."[]", $years, $saved_year);
+
+		// Account for hour & minute drop downs.
+		if ($hours && $minutes)
+		{
+			$output .= NBS.'@'.NBS
+				. form_dropdown($field_name ."[]", $hours, $saved_hour)
+				. ':'
+				. form_dropdown($field_name ."[]", $minutes, $saved_minute);
+
+			// Add am/pm drop down for you yanks.
+			if ($this->_time_format == 'us')
+			{
+				$output .= NBS . form_dropdown($field_name ."[]", array(
+					''   => 'am/pm',
+					'AM' => 'am',
+					'PM' => 'pm'
+				), $saved_ampm);
+			}
+		}
+
+		// Return generated HTML.
+		return $output;
 	}
 	
 	
@@ -257,17 +330,20 @@ class Dropdate_ft extends EE_Fieldtype {
 	{
 		if (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
 		{
-			$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})$/';
-			$field_data = preg_match($pattern, $field_data, $matches)
-				? $field_data = mktime(0, 0, 1, $matches[2], $matches[3], $matches[1])
-				: '';
+			$pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})(([0-9]{2})([0-9]{2}))?$/';
+			if (preg_match($pattern, $field_data, $matches))
+			{
+				$hour       = (int) (isset($matches[5]) ? $matches[5] : 0);
+				$minute     = (int) (isset($matches[6]) ? $matches[6] : 0);
+				$field_data = mktime($hour, $minute, 1, $matches[2], $matches[3], $matches[1]);
+			}
 		}
-		
+
 		if ( ! $field_data)
 		{
 			return '';
 		}
-		
+
 		$params = array_merge(array('format' => 'U'), $params);
 
 		// @low: if there's a percentage sign in the format, use EE's native date function for language file use
@@ -308,11 +384,7 @@ class Dropdate_ft extends EE_Fieldtype {
 	 */
 	public function save($field_data = '')
 	{
-		if ( ! is_array($field_data)
-			OR count($field_data) != 3
-			OR ! $field_data[0]
-			OR ! $field_data[1]
-			OR ! $field_data[2])
+		if ( ! (is_array($field_data) && in_array(count($field_data), array(3,5,6))) )
 		{
 			return '';
 		}
@@ -320,14 +392,28 @@ class Dropdate_ft extends EE_Fieldtype {
 		$day 	= $field_data[0];
 		$month	= $field_data[1];
 		$year	= $field_data[2];
+		$hour   = @$field_data[3];
+		$minute = @$field_data[4];
+		$ampm   = @$field_data[5];
+		
+		// Convert 12h to 24h format.
+		if ($ampm && $this->_time_format == 'us')
+		{
+			$hour = date('H', strtotime("{$hour}:{$minute} {$ampm}"));
+		}
 		
 		if (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
 		{
 			$date = $year .str_pad($month, 2, '0', STR_PAD_LEFT) .str_pad($day, 2, '0', STR_PAD_LEFT);
+
+			if (strlen($hour) && strlen($minute))
+			{
+				$date .= $hour.$minute;
+			}
 		}
 		else
 		{
-			$date = mktime(0, 0, 1, $month, $day, $year);
+			$date = mktime($hour, $minute, 1, $month, $day, $year);
 		}
 		
 		return $date;
@@ -472,6 +558,13 @@ class Dropdate_ft extends EE_Fieldtype {
 			}
 		}
 
+		// Drop down of time options
+		$time_options = array(
+			''   => lang('show_time_no'),
+			'5'  => lang('show_time_5'),
+			'15' => lang('show_time_15')
+		);
+
 		return array(
 			array(
 				lang('save_format_label'),
@@ -491,6 +584,10 @@ class Dropdate_ft extends EE_Fieldtype {
 					'value'	=> $field_settings['year_range'],
 					'style'	=> 'width:75px'
 				))
+			),
+			array(
+				lang('show_time_label'),
+				form_dropdown('show_time', $time_options, $field_settings['show_time'])
 			)
 		);
 	}
