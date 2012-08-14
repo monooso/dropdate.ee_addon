@@ -18,15 +18,13 @@ class Dropdate_ft extends EE_Fieldtype {
   const DROPDATE_FMT_UNIX = 'unix';
   const DROPDATE_FMT_YMD  = 'ymd';
   
-  private $_class;
-  private $_lower_class;
-  private $_ee;
-  private $_time_format;
+  protected $_class;
+  protected $_lower_class;
+  protected $_time_format;
 
   public $info;
   public $postpone_saves;
   public $default_settings;
-  
   
   
   /**
@@ -45,10 +43,9 @@ class Dropdate_ft extends EE_Fieldtype {
   {
     parent::EE_Fieldtype();
 
-    $this->_ee          =& get_instance();
-    $this->_class         = get_class($this);
-    $this->_lower_class   = strtolower($this->_class);
-    $this->_time_format   = $this->_ee->config->item('time_format');
+    $this->_class       = get_class($this);
+    $this->_lower_class = strtolower($this->_class);
+    $this->_time_format = $this->EE->config->item('time_format');
 
     $this->info = array(
       'name'     => DROPDATE_NAME,
@@ -69,10 +66,11 @@ class Dropdate_ft extends EE_Fieldtype {
   
   
   /**
-   * Adds custom cell settings to an FF Matrix field in the "Create / Edit Field" form.
+   * Adds custom cell settings to an FF Matrix field in the "Create / Edit 
+   * Field" form.
    *
    * @access  public
-   * @param array   $cell_settings    Previously saved cell settings.
+   * @param   array   $cell_settings    Previously saved cell settings.
    * @return  void
    */
   public function display_cell_settings(Array $cell_settings = array())
@@ -85,7 +83,7 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the custom cell HTML for the "Publish / Edit" form.
    *
    * @access  public
-   * @param string    $cell_data      Previously saved cell data.
+   * @param   string    $cell_data      Previously saved cell data.
    * @return  string
    */
   public function display_cell($cell_data = '')
@@ -98,12 +96,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the custom field HTML for the "Publish / Edit" form.
    *
    * @access  public
-   * @param string    $field_data     Previously saved field data.
+   * @param   string    $field_data     Previously saved field data.
    * @return  string
    */
   public function display_field($field_data = '', $cell = FALSE)
   {
-    $this->_ee->lang->loadfile('dropdate');
+    $this->EE->lang->loadfile('dropdate');
     
     $field_name = $cell ? $this->cell_name : $this->field_name;
     
@@ -220,7 +218,8 @@ class Dropdate_ft extends EE_Fieldtype {
     /**
      * There are 4 situations to deal with:
      * 1. There is no previously-saved OR previously-submitted field data.
-     * 2. There is no previously-saved data, BUT data was submitted (occurs when required fields are not filled out).
+     * 2. There is no previously-saved data, BUT data was submitted (occurs when 
+     *    required fields are not filled out).
      * 3. There is previously-saved data, in YMD format.
      * 4. There is previously-saved data, in UNIX format.
      *
@@ -314,7 +313,7 @@ class Dropdate_ft extends EE_Fieldtype {
    * Adds custom settings to the "Create / Edit Field" form.
    *
    * @access  public
-   * @param array   $field_settings   Previously saved field settings.
+   * @param   array   $field_settings   Previously saved field settings.
    * @return  array
    */
   public function display_settings(Array $field_settings = array())
@@ -323,7 +322,7 @@ class Dropdate_ft extends EE_Fieldtype {
     
     foreach ($settings AS $row)
     {
-      $this->_ee->table->add_row('<strong>'. $row[0] .'</strong>', $row[1]);
+      $this->EE->table->add_row('<strong>'. $row[0] .'</strong>', $row[1]);
     }
   }
   
@@ -332,8 +331,8 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the field data in a template tag.
    *
    * @access  public
-   * @param array     $params       The template tag parameters (key / value pairs).
-   * @param string    $tagdata      The content between the opening and closing tags, if it's a tag pair.
+   * @param   array     $params       The template tag parameters (key / value pairs).
+   * @param   string    $tagdata      The content between the opening and closing tags, if it's a tag pair.
    * @param   string    $field_data     The field data.
    * @param   array     $field_settings   The field settings.
    * @return  string
@@ -365,7 +364,7 @@ class Dropdate_ft extends EE_Fieldtype {
     }
     else
     {
-      return $this->_ee->localize->decode_date($params['format'], $field_data);
+      return $this->EE->localize->decode_date($params['format'], $field_data);
     }
   }
   
@@ -560,7 +559,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   private function _get_settings(Array $field_settings = array())
   {
-    $this->_ee->lang->loadfile('dropdate');
+    $this->EE->lang->loadfile('dropdate');
     
     foreach ($this->default_settings AS $setting => $value)
     {
@@ -582,11 +581,11 @@ class Dropdate_ft extends EE_Fieldtype {
         lang('save_format_label'),
          '<label style="margin-right:20px">'
         . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
-        . ' '. $this->_ee->lang->line('unix_format_label')
+        . ' '. $this->EE->lang->line('unix_format_label')
         .'</label>'
         .'<label>'
         . form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
-        . ' '. $this->_ee->lang->line('ymd_format_label')
+        . ' '. $this->EE->lang->line('ymd_format_label')
         .'</label>'
       ),
       array(
@@ -616,7 +615,7 @@ class Dropdate_ft extends EE_Fieldtype {
     
     foreach ($this->default_settings AS $setting => $value)
     {
-      if (($settings[$setting] = $this->_ee->input->post($setting)) === FALSE)
+      if (($settings[$setting] = $this->EE->input->post($setting)) === FALSE)
       {
         $settings[$setting] = $value;
       }
