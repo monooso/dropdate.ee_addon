@@ -22,7 +22,14 @@ class Dropdate_ft extends EE_Fieldtype {
   protected $_lower_class;
   protected $_time_format;
 
-  public $info;
+  // Annoyingly, we can't populate this in the constructor.
+  public $info = array(
+    'name'     => DROPDATE_NAME,
+    'version'  => DROPDATE_VERSION,
+    'desc'     => 'Fieldtype enabling users to select a date using 3 or 5 drop-downs (day, month, year[, hour, minute]).',
+    'docs_url' => 'http://experienceinternet.co.uk/software/dropdate/'
+  );
+    
   public $postpone_saves;
   public $default_settings;
   
@@ -47,14 +54,6 @@ class Dropdate_ft extends EE_Fieldtype {
     $this->_lower_class = strtolower($this->_class);
     $this->_time_format = $this->EE->config->item('time_format');
 
-    $this->info = array(
-      'name'     => DROPDATE_NAME,
-      'version'  => DROPDATE_VERSION,
-      'desc'     => 'Fieldtype enabling users to select a date using 3 or 5 '
-                    .'drop-downs (day, month, year[, hour, minute]).',
-      'docs_url' => 'http://experienceinternet.co.uk/software/dropdate/'
-    );
-    
     $this->postpone_saves = TRUE;
 
     $this->default_settings = array(
