@@ -8,7 +8,6 @@
  * @author      Lodewijk Schutte (http://github.com/lodewijk)
  * @copyright   Copyright (c) 2010, Stephen Lewis
  * @link        http://experienceinternet.co.uk/software/dropdate/
- * @version     2.1.0
  */
 
 require_once 'config.php';
