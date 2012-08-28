@@ -6,13 +6,13 @@
  * @author      Stephen Lewis (http://github.com/experience/)
  * @copyright   Experience Internet
  * @package     DropDate
- * @version     2.1.0
+ * @version     2.2.0
  */
 
 if ( ! defined('DROPDATE_NAME'))
 {
   define('DROPDATE_NAME', 'DropDate');
-  define('DROPDATE_VERSION', '2.1.0');
+  define('DROPDATE_VERSION', '2.2.0');
 }
 
 $config['name']     = DROPDATE_NAME;
