@@ -337,9 +337,10 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function replace_tag($field_data = '', Array $params = array(), $tagdata = '')
   {
-    if (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
+    if (isset($this->settings['date_format'])
+      && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
     {
-      $pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})(([0-9]{2})([0-9]{2}))?$/';
+      $pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})T?(([0-9]{2})([0-9]{2}))?$/';
       if (preg_match($pattern, $field_data, $matches))
       {
         $hour       = (int) (isset($matches[5]) ? $matches[5] : 0);
@@ -386,46 +387,54 @@ class Dropdate_ft extends EE_Fieldtype {
    * Modifies the field's POST data, before it's saved to the database.
    *
    * @access  public
-   * @param mixed   $field_data     The field's POST data.
-   * @param array   $field_settings   The field settings.
-   * @param   mixed   $entry_id     The entry ID (if postponed saving is enabled), or FALSE.
+   * @param   mixed   $field_data     The field's POST data.
+   * @param   array   $field_settings The field settings.
+   * @param   mixed   $entry_id       The entry ID (if postponed saving is enabled), or FALSE.
    * @return  string
    */
   public function save($field_data = '')
   {
-    if ( ! (is_array($field_data) && in_array(count($field_data), array(3,5,6))) )
+    if ( ! is_array($field_data)
+      OR ! in_array(count($field_data), array(3, 5, 6))
+    )
     {
       return '';
     }
     
-    $day  = $field_data[0];
+    $day    = $field_data[0];
     $month  = $field_data[1];
-    $year = $field_data[2];
-    $hour   = @$field_data[3];
-    $minute = @$field_data[4];
-    $ampm   = @$field_data[5];
-    
+    $year   = $field_data[2];
+    $hour   = isset($field_data[3]) ? $field_data[3] : 0;
+    $minute = isset($field_data[4]) ? $field_data[4] : 0;
+    $ampm   = isset($field_data[5]) ? $field_data[5] : 'am';
+
     // Convert 12h to 24h format.
     if ($ampm && $this->_time_format == 'us')
     {
       $hour = date('H', strtotime("{$hour}:{$minute} {$ampm}"));
     }
-    
-    if (isset($this->settings['date_format']) && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
-    {
-      $date = $year .str_pad($month, 2, '0', STR_PAD_LEFT) .str_pad($day, 2, '0', STR_PAD_LEFT);
 
-      if (strlen($hour) && strlen($minute))
-      {
-        $date .= $hour.$minute;
-      }
-    }
-    else
+    // Do we have the bare minimum?
+    if ( ! $day OR ! $month OR ! $year)
     {
-      $date = mktime($hour, $minute, 1, $month, $day, $year);
+      return '';
     }
-    
-    return $date;
+
+    // Format the strings.
+    $day    = str_pad($day, 2, '0', STR_PAD_LEFT);
+    $month  = str_pad($month, 2, '0', STR_PAD_LEFT);
+    $hour   = str_pad($hour, 2, '0', STR_PAD_LEFT);
+    $minute = str_pad($minute, 2, '0', STR_PAD_LEFT);
+
+    // Create a DateTime object.
+    $date = new DateTime("{$year}-{$month}-{$day}T{$hour}:{$minute}:00",
+      new DateTimeZone('UTC'));
+
+    // Format and return the date as a string.
+    return (isset($this->settings['date_format'])
+      && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
+        ? $date->format('YmdTHi')
+        : $date->format('U');
   }
   
   
