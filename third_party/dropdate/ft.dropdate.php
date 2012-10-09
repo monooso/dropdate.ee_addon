@@ -10,7 +10,8 @@
  * @link        http://experienceinternet.co.uk/software/dropdate/
  */
 
-require_once 'config.php';
+require_once dirname(__FILE__) .'/config.php';
+require_once dirname(__FILE__) .'/helpers/EI_number_helper.php';
 
 class Dropdate_ft extends EE_Fieldtype {
   
@@ -404,18 +405,13 @@ class Dropdate_ft extends EE_Fieldtype {
     $day    = $field_data[0];
     $month  = $field_data[1];
     $year   = $field_data[2];
-    $hour   = isset($field_data[3]) ? $field_data[3] : 0;
-    $minute = isset($field_data[4]) ? $field_data[4] : 0;
+    $hour   = valid_int(@$field_data[3]) ? $field_data[3] : 0;
+    $minute = valid_int(@$field_data[4]) ? $field_data[4] : 1;
     $ampm   = isset($field_data[5]) ? $field_data[5] : 'am';
 
-    // Convert 12h to 24h format.
-    if ($ampm && $this->_time_format == 'us')
-    {
-      $hour = date('H', strtotime("{$hour}:{$minute} {$ampm}"));
-    }
-
     // Do we have the bare minimum?
-    if ( ! $day OR ! $month OR ! $year)
+    if ( ! valid_int($day, 1, 31) OR ! valid_int($month, 1, 12)
+      OR ! valid_int($year))
     {
       return '';
     }
@@ -426,14 +422,20 @@ class Dropdate_ft extends EE_Fieldtype {
     $hour   = str_pad($hour, 2, '0', STR_PAD_LEFT);
     $minute = str_pad($minute, 2, '0', STR_PAD_LEFT);
 
+    // Tolerate Americans.
+    if ($this->_time_format == 'us' && in_array($ampm, array('am', 'pm')))
+    {
+      $hour = date('H', strtotime("{$hour}:{$minute} {$ampm}"));
+    }
+    
     // Create a DateTime object.
-    $date = new DateTime("{$year}-{$month}-{$day}T{$hour}:{$minute}:00",
+    $date = new DateTime("{$year}-{$month}-{$day} {$hour}:{$minute}:00",
       new DateTimeZone('UTC'));
 
     // Format and return the date as a string.
     return (isset($this->settings['date_format'])
       && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
-        ? $date->format('YmdTHi')
+        ? $date->format('Ymd\THie')
         : $date->format('U');
   }
   
