@@ -3,16 +3,17 @@
 /**
  * DropDate NSM Add-on Updater information.
  *
- * @author      Stephen Lewis (http://github.com/experience/)
- * @copyright   Experience Internet
- * @package     DropDate
- * @version     2.2.0
+ * @author          Stephen Lewis (http://github.com/experience/)
+ * @copyright       Experience Internet
+ * @package         Dropdate
+ * @version         2.3.0a1
  */
 
 if ( ! defined('DROPDATE_NAME'))
 {
-  define('DROPDATE_NAME', 'DropDate');
-  define('DROPDATE_VERSION', '2.2.0');
+  define('DROPDATE_NAME', 'Dropdate');
+  define('DROPDATE_TITLE', 'DropDate');
+  define('DROPDATE_VERSION', '2.3.0a1');
 }
 
 $config['name']     = DROPDATE_NAME;
