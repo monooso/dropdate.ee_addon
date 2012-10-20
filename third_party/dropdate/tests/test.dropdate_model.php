@@ -110,6 +110,24 @@ class Test_dropdate_model extends Testee_unit_test_case {
   }
 
 
+  /* --------------------------------------------------------------
+   * ADD-ON TESTS
+   * ------------------------------------------------------------ */
+  
+  public function test__get_years__throws_exception_if_missing_settings()
+  {
+    $message   = 'OH NOES!';
+    $exception = new Exception($message);
+    $settings  = array('not_helpful' => 'wibble');
+
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+  
+    $this->expectException($exception);
+    $this->_subject->get_years($settings);
+  }
+  
+
 }
 
 

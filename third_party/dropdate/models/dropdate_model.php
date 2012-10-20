@@ -302,6 +302,14 @@ class Dropdate_model extends CI_Model {
    */
   public function get_years(Array $settings = array())
   {
+    if ( ! array_key_exists('year_from', $settings)
+      OR ! array_key_exists('year_to', $settings)
+    )
+    {
+      throw new Exception(
+        $this->EE->lang->line('exception__missing_year_settings'));
+    }
+
     return array('1999' => '1999');
   }
 
