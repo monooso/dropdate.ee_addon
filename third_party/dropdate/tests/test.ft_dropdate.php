@@ -72,6 +72,24 @@ class Test_dropdate_ft extends Testee_unit_test_case {
       'show_time'   => '15'
     );
 
+    $days = array(
+      '1' => '01',
+      '2' => '02',
+      '3' => '03'
+    );
+
+    $months = array(
+      '1' => 'Jan',
+      '2' => 'Feb',
+      '3' => 'Mar'
+    );
+
+    $years = array(
+      '2000' => '2000',
+      '2001' => '2001',
+      '2002' => '2002'
+    );
+
     $this->_subject->settings = $settings;
 
     $this->EE->load->expectOnce('helper', array('form'));
@@ -79,6 +97,10 @@ class Test_dropdate_ft extends Testee_unit_test_case {
     $this->_model->expectOnce('get_days');
     $this->_model->expectOnce('get_months');
     $this->_model->expectOnce('get_years', array($settings));
+
+    $this->_model->returns('get_days', $days);
+    $this->_model->returns('get_months', $months);
+    $this->_model->returns('get_years', $years);
   
     $this->_subject->display_field($saved_data);
   }
