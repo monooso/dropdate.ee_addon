@@ -431,29 +431,23 @@ class Dropdate_ft extends EE_Fieldtype {
 
     // Days.
     $days_data = $this->_model->get_days();
-    $days_data = array_merge(
-      array('null' => $this->EE->lang->line('label__day'))
-      ,$days_data
-    );
+    $days_data = array('null' => $this->EE->lang->line('label__day'))
+      + $days_data;
 
     $field_html .= form_dropdown("{$field_name}[day]", $days_data, $saved_day);
 
     // Months.
     $months_data = $this->_model->get_months();
-    $months_data = array_merge(
-      array('null' => $this->EE->lang->line('label__month'))
-      ,$months_data
-    );
+    $months_data = array('null' => $this->EE->lang->line('label__month'))
+      + $months_data;
 
     $field_html .= NBS .form_dropdown("{$field_name}[month]", $months_data,
       $saved_month);
 
     // Years.
     $years_data = $this->_model->get_years($this->settings);
-    $years_data = array_merge(
-      array('null' => $this->EE->lang->line('label__year'))
-      ,$years_data
-    );
+    $years_data = array('null' => $this->EE->lang->line('label__year'))
+      + $years_data;
 
     $field_html .= NBS .form_dropdown("{$field_name}[year]", $years_data,
       $saved_year);
