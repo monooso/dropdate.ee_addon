@@ -166,8 +166,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
       2010 => 2010
     );
   
-    $this->assertIdentical($expected_result
-      ,$this->_subject->get_years($settings));
+    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
   }
 
 
@@ -186,8 +185,26 @@ class Test_dropdate_model extends Testee_unit_test_case {
       $expected_result[$count] = $count;
     }
 
-    $this->assertIdentical($expected_result
-      ,$this->_subject->get_years($settings));
+    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
+  }
+
+
+  public function test__get_years__can_count_backwards()
+  {
+    $settings = array(
+      'year_from' => 'now+5',
+      'year_to'   => 'now-5'
+    );
+
+    $current_year    = intval(date('Y'));
+    $expected_result = array();
+
+    for ($count = $current_year + 5; $count >= $current_year - 5; $count--)
+    {
+      $expected_result[$count] = $count;
+    }
+
+    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
   }
   
 

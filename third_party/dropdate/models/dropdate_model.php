@@ -335,12 +335,17 @@ class Dropdate_model extends CI_Model {
     $from_year = eval("return ({$from_year_base}{$from_year_operator}{$from_year_offset});");
     $to_year   = eval("return ({$to_year_base}{$to_year_operator}{$to_year_offset});");
 
-    // Build the data array.
-    $years = array();
+    // We can count backwards, if required.
+    $year_step = $from_year > $to_year ? -1 : 1;
 
-    for ($count = $from_year; $count <= $to_year; $count++)
+    // Build the data array.
+    $years      = array();
+    $year_count = $from_year;
+
+    while ($year_count != ($to_year + $year_step))
     {
-      $years[$count] = $count;
+      $years[$year_count]  = $year_count;
+      $year_count         += $year_step;
     }
 
     return $years;
