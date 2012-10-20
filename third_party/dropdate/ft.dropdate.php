@@ -392,7 +392,6 @@ class Dropdate_ft extends EE_Fieldtype {
       'value' => $settings['year_to'],
       'style' => 'width: 75px;'));
 
-
     $return[] = array($year_index, $year_html);
 
     // Time.
@@ -421,7 +420,20 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   protected function _display_field_or_cell($saved_data = '', $is_cell = FALSE)
   {
+    $this->EE->load->helper('form');
+
     $field_name = $is_cell ? $this->cell_name : $this->field_name;
+
+    // Days.
+    $days_data = $this->_model->get_days();
+
+    // Months.
+    $months_data = $this->_model->get_months();
+
+    // Years.
+    $years_data = $this->_model->get_years($this->settings);
+
+    // Time.
   }
 
 

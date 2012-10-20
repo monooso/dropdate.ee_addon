@@ -252,6 +252,45 @@ class Dropdate_model extends CI_Model {
    * PUBLIC ADD-ON SPECIFIC METHODS
    * ------------------------------------------------------------ */
 
+  /**
+   * Returns an associative array of days, for use with the `form_dropdown` Form 
+   * helper.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_days()
+  {
+    
+  }
+
+
+  /**
+   * Returns an associative array of months in the localised language, for use 
+   * with the `form_dropdown` Form helper.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_months()
+  {
+    
+  }
+
+
+  /**
+   * Returns an associative array of years, for use with the `form_dropdown` 
+   * Form helper.
+   *
+   * @access  public
+   * @param   array   $settings   The field settings.
+   * @return  array
+   */
+  public function get_years()
+  {
+    
+  }
+
 
 
   /* --------------------------------------------------------------

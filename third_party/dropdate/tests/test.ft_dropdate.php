@@ -61,6 +61,30 @@ class Test_dropdate_ft extends Testee_unit_test_case {
   }
 
 
+  public function test__display_field__retrieves_day_month_year_data_from_model()
+  {
+    $saved_data = '';
+
+    $settings = array(
+      'date_format' => Dropdate_ft::DROPDATE_FMT_UNIX,
+      'year_from'   => '2000',
+      'year_to'     => 'now+10',
+      'show_time'   => '15'
+    );
+
+    $this->_subject->settings = $settings;
+
+    $this->EE->load->expectOnce('helper', array('form'));
+
+    $this->_model->expectOnce('get_days');
+    $this->_model->expectOnce('get_months');
+    $this->_model->expectOnce('get_years', array($settings));
+  
+    $this->_subject->display_field($saved_data);
+  }
+  
+
+
 
   /* --------------------------------------------------------------
    * PROTECTED METHODS
@@ -94,7 +118,7 @@ class Test_dropdate_ft extends Testee_unit_test_case {
     );
 
     $expected_result = array(
-      'date_foramt' => 'Wibble',    // No validation is performed on this.
+      'date_format' => 'Wibble',    // No validation is performed on this.
       'year_from'   => 'now-10',
       'year_to'     => '2020',
       'show_time'   => 'no'         // Default.
