@@ -13,17 +13,24 @@ require_once dirname(__FILE__) .'/config.php';
 
 class Dropdate_ft extends EE_Fieldtype {
 
-  private $_model;
+  // Constants.
+  const DROPDATE_FMT_UNIX = 'unix';
+  const DROPDATE_FMT_YMD  = 'ymd';
 
-  /**
-   * Stupid EE forces us to do this here, rather than calling the appropriate
-   * model methods from the Constructor.
-   */
+  // Protected properties.
+  protected $_model;
 
+  // Public properties.
+  public $default_settings;
+
+  // Have to do this here. EE won't let us call the model methods from the 
+  // constructor.
   public $info = array(
-    'name'    => OPTIONS_TITLE,
-    'version' => OPTIONS_VERSION
+    'name'    => DROPDATE_TITLE,
+    'version' => DROPDATE_VERSION
   );
+
+  public $postpone_saves;
 
 
   /* --------------------------------------------------------------
@@ -47,32 +54,32 @@ class Dropdate_ft extends EE_Fieldtype {
     // Load the model.
     $this->EE->load->model('dropdate_model');
     $this->_model = $this->EE->dropdate_model;
+
+    // Set the public properties.
+    $this->default_settings = array(
+      'date_format' => self::DROPDATE_FMT_UNIX,
+      'year_from'   => '1900',
+      'year_to'     => '2020',
+      'show_time'   => 'no'
+    );
+
+    $this->postpone_saves = TRUE;
+
+    // Hidden config. variable.
+    $this->_time_format = $this->EE->config->item('time_format');
   }
 
 
   /**
-   * Tidies up after one or more entries are deleted.
+   * Displays the fieldtype on the Publish / Edit page (or within SafeCracker).
    *
    * @access public
-   * @param  array $entry_ids The IDs of the deleted entries.
-   * @return void
-   */
-  public function delete(Array $entry_ids)
-  {
-
-  }
-
-
-  /**
-   * Displays the fieldtype on the Publish / Edit page.
-   *
-   * @access public
-   * @param  string $data Previously saved field data.
+   * @param  string   $saved_data   Previously saved field data.
    * @return string
    */
-  public function display_field($data = '')
+  public function display_field($saved_data = '')
   {
-
+    return $this->_display_field_or_cell($saved_data, FALSE);
   }
 
 
@@ -80,12 +87,18 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the fieldtype settings form.
    *
    * @access public
-   * @param  array $settings Previously-saved settings.
+   * @param  array    $settings     Previously-saved settings.
    * @return string
    */
   public function display_settings(Array $settings = array())
   {
+    $settings_html = $this->_build_settings($settings);
 
+    foreach ($settings_html AS $settings_row)
+    {
+      $this->EE->table->add_row('<strong>' .$settings_row[0] .'</strong>',
+        $settings_row[1]);
+    }
   }
 
 
@@ -148,8 +161,8 @@ class Dropdate_ft extends EE_Fieldtype {
    * Prepares the field data for saving to the databasae.
    *
    * @access public
-   * @param  string $data The submitted field data.
-   * @return string The data to save.
+   * @param  string   $data   The submitted field data.
+   * @return string   The data to save.
    */
   public function save($data)
   {
@@ -161,12 +174,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Saves the fieldtype settings.
    *
    * @access public
-   * @param  array $settings The submitted settings.
+   * @param  array  $settings   The submitted settings.
    * @return array
    */
   public function save_settings(Array $settings = array())
   {
-
+    return $this->_update_default_settings_with_post_data();
   }
 
 
@@ -216,12 +229,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the Low Variables fieldtype settings form.
    *
    * @access public
-   * @param  array  $var_settings Previously saved settings.
+   * @param  array  $var_settings   Previously saved settings.
    * @return array  An array containing the name / label, and the form elements.
    */
   public function display_var_settings(Array $var_settings = array())
   {
-
+    return $this->_build_settings($var_settings);
   }
 
 
@@ -271,18 +284,168 @@ class Dropdate_ft extends EE_Fieldtype {
    * database.
    *
    * @access public
-   * @param  array  $var_settings The submitted Low Variable settings.
+   * @param  array  $var_settings   The submitted Low Variable settings.
    * @return array  The settings data to be saved to the database.
    */
   public function save_var_settings(Array $var_settings = array())
   {
-
+    return $this->_update_default_settings_with_post_data();
   }
+
 
 
   /* --------------------------------------------------------------
    * MATRIX
    * ------------------------------------------------------------ */
+
+  /**
+   * Displays the Matrix cell on the Publish / Edit page (or within 
+   * SafeCracker).
+   *
+   * @access  public
+   * @param   string    $saved_data    Previously-saved cell data.
+   * @return  string
+   */
+  public function display_cell($saved_data = '')
+  {
+    return $this->_display_field_or_cell($saved_data, TRUE);
+  }
+
+
+  /**
+   * Displays custom Matrix cell settings on the Create / Edit Field page.
+   *
+   * @access  public
+   * @param   array    $settings    Previously-saved settings.
+   * @return  void
+   */
+  public function display_cell_settings(Array $settings = array())
+  {
+    return $this->_build_settings($settings);
+  }
+  
+
+  /**
+   * Modifies a Matrix cell's POST data, before it is saved to the database.
+   *
+   * @access  public
+   * @param   mixed   $post_data  The POST data.
+   * @param   array   $settings   The cell settings.
+   * @param   mixed   $entry_id   The entry ID, if postponed saving is enabled, 
+   *                              or FALSE.
+   * @return  string
+   */
+  public function save_cell($post_data = '', Array $settings = array(),
+    $entry_id = FALSE
+  )
+  {
+    
+  }
+
+
+
+  /* --------------------------------------------------------------
+   * PROTECTED METHODS
+   * ------------------------------------------------------------ */
+
+  /**
+   * Builds the settings form controls, and returns them as a nested array.
+   *
+   * @access  protected
+   * @param   array    $saved_settings    Previously-saved settings.
+   * @return  array
+   */
+  protected function _build_settings(Array $saved_settings = array())
+  {
+    $settings = array_merge($this->default_settings,
+      array_intersect_key($saved_settings, $this->default_settings));
+
+    $return = array();
+
+    // Format (UNIX or YMD).
+    $format_index = $this->EE->lang->line('label__format');
+
+    $format_html = '<label style="margin-right: 20px;">'
+      .form_radio('date_format', self::DROPDATE_FMT_UNIX, ($settings['date_format'] == self::DROPDATE_FMT_UNIX))
+      .' ' .$this->EE->lang->line('label__format_unix')
+      .'</label>';
+
+    $format_html .= '<label>'
+      .form_radio('date_format', self::DROPDATE_FMT_YMD, ($settings['date_format'] == self::DROPDATE_FMT_YMD))
+      .' ' .$this->EE->lang->line('label__format_ymd')
+      .'</label>';
+
+    $return[] = array($format_index, $format_html);
+
+    // Year range.
+    $year_index = $this->EE->lang->line('label__range');
+
+    $year_html = form_input(array(
+      'name'  => 'year_from',
+      'value' => $settings['year_from'],
+      'style' => 'width: 75px;'));
+
+    $year_html .= '&nbsp;&nbsp;to&nbsp;&nbsp;';
+
+    $year_html .= form_input(array(
+      'name'  => 'year_to',
+      'value' => $settings['year_to'],
+      'style' => 'width: 75px;'));
+
+
+    $return[] = array($year_index, $year_html);
+
+    // Time.
+    $time_index = $this->EE->lang->line('label__time');
+
+    $time_html = form_dropdown('show_time', array(
+      'no' => $this->EE->lang->line('label__time_no'),
+      '5'  => $this->EE->lang->line('label__time_5'),
+      '15' => $this->EE->lang->line('label__time_15')
+    ), $settings['show_time']);
+
+    $return[] = array($time_index, $time_html);
+
+    return $return;
+  }
+  
+
+  /**
+   * Displays the fieldtype or Matrix cell on the Publish / Edit page (or within 
+   * SafeCracker).
+   *
+   * @access  protected
+   * @param   string    $saved_data   Previously-saved data.
+   * @param   bool      $is_cell      Are we processing a Matrix cell?
+   * @return  string
+   */
+  protected function _display_field_or_cell($saved_data = '', $is_cell = FALSE)
+  {
+    $field_name = $is_cell ? $this->cell_name : $this->field_name;
+  }
+
+
+  /**
+   * Updates the default settings with any POST data, and returns the array.
+   *
+   * @access  protected
+   * @return  array
+   */
+  protected function _update_default_settings_with_post_data()
+  {
+    $post_settings = array();
+
+    foreach ($this->default_settings AS $setting_key => $setting_value)
+    {
+      $post_settings[$setting_key] = $this->EE->input->post($setting_key);
+    }
+
+    // Delete any FALSE values.
+    array_filter($post_settings);
+
+    return $this->_model->update_array_from_input($this->default_settings,
+      $post_settings);
+  }
 
 
 }

@@ -9,8 +9,20 @@
  */
 
 $lang = array(
-  'dropdate_fieldtype_name' => 'DropDate',
+
+  // The basics.
+  'dropdate_fieldtype_name'        => 'DropDate',
   'dropdate_fieldtype_description' => 'Better date selection.',
+
+  // Settings.
+  'label__format'      => 'Save date as',
+  'label__format_unix' => 'UNIX timestamp',
+  'label__format_ymd'  => 'YMD timestamp',
+  'label__range'       => 'Year range',
+  'label__time'        => 'Show time?',
+  'label__time_no'     => "Don't show time",
+  'label__time_5'      => 'Yes, in 5 minute intervals',
+  'label__time_15'     => 'Yes, in 15 minute intervals',
 
   // All done.
   '' => ''
