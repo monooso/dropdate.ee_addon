@@ -455,7 +455,7 @@ class Dropdate_ft extends EE_Fieldtype {
       ,$years_data
     );
 
-    $field_html .= NBS. form_dropdown("{$field_name}[year]", $years_data,
+    $field_html .= NBS .form_dropdown("{$field_name}[year]", $years_data,
       $saved_year);
 
     // Time.

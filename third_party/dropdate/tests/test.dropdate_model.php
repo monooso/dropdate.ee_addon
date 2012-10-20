@@ -126,6 +126,51 @@ class Test_dropdate_model extends Testee_unit_test_case {
     $this->expectException($exception);
     $this->_subject->get_years($settings);
   }
+
+
+  public function test__get_years__throws_exception_if_invalid_year_format()
+  {
+    $message   = 'EPIC FAIL!';
+    $exception = new Exception($message);
+
+    $settings = array(
+      'year_from' => '1999-ish',
+      'year_to'   => '2012'
+    );
+  
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+  
+    $this->expectException($exception);
+    $this->_subject->get_years($settings);
+  }
+
+
+  public function test__get_years__works_with_simple_year_declarations()
+  {
+    $settings = array(
+      'year_from' => '2001',
+      'year_to'   => '2010'
+    );
+
+    $expected_result = array(
+      2001 => 2001,
+      2002 => 2002,
+      2003 => 2003,
+      2004 => 2004,
+      2005 => 2005,
+      2006 => 2006,
+      2007 => 2007,
+      2008 => 2008,
+      2009 => 2009,
+      2010 => 2010
+    );
+  
+    $this->assertIdentical($expected_result
+      ,$this->_subject->get_years($settings));
+  }
+  
+  
   
 
 }

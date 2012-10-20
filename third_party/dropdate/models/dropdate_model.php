@@ -310,7 +310,40 @@ class Dropdate_model extends CI_Model {
         $this->EE->lang->line('exception__missing_year_settings'));
     }
 
-    return array('1999' => '1999');
+    // Parse the 'from' and 'to' years.
+    $date_pattern = '/^(now([\-|+]))?(\d+)$/i';
+
+    if ( ! preg_match($date_pattern, $settings['year_from'], $from_matches)
+      OR ! preg_match($date_pattern, $settings['year_to'], $to_matches)
+    )
+    {
+      throw new Exception(
+        $this->EE->lang->line('exception__invalid_year_settings'));
+    }
+
+    $now = date('Y');   // Make a note of the current year.
+
+    $from_year_base     = $from_matches[1] ? $now : 0;
+    $from_year_operator = $from_matches[2] ? $from_matches[2] : '+';
+    $from_year_offset   = $from_matches[3];
+
+    $to_year_base     = $to_matches[1] ? $now : 0;
+    $to_year_operator = $to_matches[2] ? $to_matches[2] : '+';
+    $to_year_offset   = $to_matches[3];
+
+    // OH MY GOD, HE'S USING EVAL! SOMEBODY STOP THIS MAN!
+    $from_year = eval("return ({$from_year_base}{$from_year_operator}{$from_year_offset});");
+    $to_year   = eval("return ({$to_year_base}{$to_year_operator}{$to_year_offset});");
+
+    // Build the data array.
+    $years = array();
+
+    for ($count = $from_year; $count <= $to_year; $count++)
+    {
+      $years[$count] = $count;
+    }
+
+    return $years;
   }
 
 
