@@ -81,27 +81,30 @@ class Test_dropdate_ft extends Testee_unit_test_case {
     // The POSTed data.
     $post_data = array(
       'date_format' => 'Wibble',
-      'year_range'  => '1999-2001',
+      'year_from'   => 'now-10',
       'invalid'     => 'Do not use'
     );
 
     // The POSTed settings, with unknown keys removed, and missing keys added.
     $post_settings = array(
       'date_format' => 'Wibble',
-      'year_range'  => '1999-2001',
+      'year_from'   => 'now-10',
+      'year_to'     => FALSE,
       'show_time'   => FALSE
     );
 
     $expected_result = array(
       'date_foramt' => 'Wibble',    // No validation is performed on this.
-      'year_range'  => '1999-2001',
+      'year_from'   => 'now-10',
+      'year_to'     => '2020',
       'show_time'   => 'no'         // Default.
     );
 
     // POST data.
-    $this->EE->input->expectCallCount('post', 3);
+    $this->EE->input->expectCallCount('post', 4);
     $this->EE->input->returns('post', $post_data['date_format'], array('date_format'));
-    $this->EE->input->returns('post', $post_data['year_range'], array('year_range'));
+    $this->EE->input->returns('post', $post_data['year_from'], array('year_from'));
+    $this->EE->input->returns('post', FALSE, array('year_to'));
     $this->EE->input->returns('post', FALSE, array('show_time'));
 
     // Model merging.
