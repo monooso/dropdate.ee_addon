@@ -25,10 +25,9 @@ $lang = array(
   'label__time_15'     => 'Yes, in 15 minute intervals',
 
   // Field.
-  'label__day'   => 'Day',
-  'label__month' => 'Month',
-  'label__year'  => 'Year',
-
+  'label__day'      => 'Day',
+  'label__month'    => 'Month',
+  'label__year'     => 'Year',
   'label__month_1'  => 'January',
   'label__month_2'  => 'February',
   'label__month_3'  => 'March',
@@ -41,6 +40,10 @@ $lang = array(
   'label__month_10' => 'October',
   'label__month_11' => 'November',
   'label__month_12' => 'December',
+
+  // Exceptions.
+  'exception__invalid_year_settings' => 'Invalid year settings.',
+  'exception__missing_year_settings' => 'Missing year settings.',
 
   // All done.
   '' => ''
