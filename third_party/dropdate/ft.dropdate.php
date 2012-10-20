@@ -414,20 +414,21 @@ class Dropdate_ft extends EE_Fieldtype {
    * SafeCracker).
    *
    * @access  protected
-   * @param   string    $saved_data   Previously-saved data.
+   * @param   string    $field_data   Previously-saved or submitted data.
    * @param   bool      $is_cell      Are we processing a Matrix cell?
    * @return  string
    */
-  protected function _display_field_or_cell($saved_data = '', $is_cell = FALSE)
+  protected function _display_field_or_cell($field_data = '', $is_cell = FALSE)
   {
     $this->EE->load->helper('form');
 
-    $saved_day   = '21';
-    $saved_month = '10';
-    $saved_year  = '2008';
-
     $field_name = $is_cell ? $this->cell_name : $this->field_name;
     $field_html = '';
+
+    // TEMPORARY.
+    $saved_day = 19;
+    $saved_month = 2;
+    $saved_year = 1973;
 
     // Days.
     $days_data = $this->_model->get_days();

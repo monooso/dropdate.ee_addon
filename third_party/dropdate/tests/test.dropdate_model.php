@@ -206,7 +206,36 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
     $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
   }
+
+
+  public function test__parse_field_data__handles_an_empty_string()
+  {
+    $expected_result = array(
+      'day'   => FALSE,
+      'month' => FALSE,
+      'year'  => FALSE
+    );
   
+    $this->assertIdentical($expected_result
+      ,$this->_subject->parse_field_data(''));
+  }
+
+
+  public function test__parse_field_data__handles_an_associative_array()
+  {
+    $expected_result = array(
+      'day'   => '19',
+      'month' => '2',
+      'year'  => FALSE
+    );
+
+    $field_data = array('day' => '19', 'month' => '2', 'year' => 'null');
+  
+    $this->assertIdentical($expected_result
+      ,$this->_subject->parse_field_data($field_data));
+  }
+  
+
 
 }
 

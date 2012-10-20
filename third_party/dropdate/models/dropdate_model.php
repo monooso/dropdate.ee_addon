@@ -352,6 +352,58 @@ class Dropdate_model extends CI_Model {
   }
 
 
+  /**
+   * Parses the supplied field data. Data can be blank (an empty string), an 
+   * associative array (data submitted during a failed attempt to publish an 
+   * entry), or a string (previously-saved data).
+   *
+   * @access  public
+   * @param   mixed    $field_data    The field data.
+   * @return  array
+   */
+  public function parse_field_data($field_data = '')
+  {
+    $date_parts = array(
+      'day'   => FALSE,
+      'month' => FALSE,
+      'year'  => FALSE
+    );
+
+    // Start with the assumption that there is no saved or submitted data.
+    if ( ! $field_data)
+    {
+      return $date_parts;
+    }
+
+    // If $field_data is an array, it (should) mean we have form data.
+    if (is_array($field_data)
+      && array_key_exists('day', $field_data)
+      && array_key_exists('month', $field_data)
+      && array_key_exists('year', $field_data)
+    )
+    {
+      if (valid_int($field_data['day'], 1, 31))
+      {
+        $date_parts['day'] = $field_data['day'];
+      }
+
+      if (valid_int($field_data['month'], 1, 12))
+      {
+        $date_parts['month'] = $field_data['month'];
+      }
+
+      if (valid_int($field_data['year']))
+      {
+        $date_parts['year'] = $field_data['year'];
+      }
+
+      return $date_parts;
+    }
+
+    // Is there previously-saved data?
+  }
+
+
 
   /* --------------------------------------------------------------
    * PROTECTED PACKAGE METHODS
