@@ -385,7 +385,7 @@ class Dropdate_ft extends EE_Fieldtype {
       'value' => $settings['year_from'],
       'style' => 'width: 75px;'));
 
-    $year_html .= '&nbsp;&nbsp;to&nbsp;&nbsp;';
+    $year_html .= NBS .NBS .'to' .NBS .NBS;
 
     $year_html .= form_input(array(
       'name'  => 'year_to',
@@ -422,18 +422,45 @@ class Dropdate_ft extends EE_Fieldtype {
   {
     $this->EE->load->helper('form');
 
+    $saved_day   = '21';
+    $saved_month = '10';
+    $saved_year  = '2008';
+
     $field_name = $is_cell ? $this->cell_name : $this->field_name;
+    $field_html = '';
 
     // Days.
     $days_data = $this->_model->get_days();
+    $days_data = array_merge(
+      array('null' => $this->EE->lang->line('label__day'))
+      ,$days_data
+    );
+
+    $field_html .= form_dropdown("{$field_name}[day]", $days_data, $saved_day);
 
     // Months.
     $months_data = $this->_model->get_months();
+    $months_data = array_merge(
+      array('null' => $this->EE->lang->line('label__month'))
+      ,$months_data
+    );
+
+    $field_html .= NBS .form_dropdown("{$field_name}[month]", $months_data,
+      $saved_month);
 
     // Years.
     $years_data = $this->_model->get_years($this->settings);
+    $years_data = array_merge(
+      array('null' => $this->EE->lang->line('label__year'))
+      ,$years_data
+    );
+
+    $field_html .= NBS. form_dropdown("{$field_name}[year]", $years_data,
+      $saved_year);
 
     // Time.
+
+    return $field_html;
   }
 
 

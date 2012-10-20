@@ -261,7 +261,14 @@ class Dropdate_model extends CI_Model {
    */
   public function get_days()
   {
-    
+    $days = array();
+
+    for ($count = 1; $count <= 31; $count++)
+    {
+      $days[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+
+    return $days;
   }
 
 
@@ -274,7 +281,14 @@ class Dropdate_model extends CI_Model {
    */
   public function get_months()
   {
-    
+    $months = array();
+
+    for ($count = 1; $count <= 12; $count++)
+    {
+      $months[$count] = $this->EE->lang->line('label__month_' .$count);
+    }
+
+    return $months;
   }
 
 
@@ -286,9 +300,9 @@ class Dropdate_model extends CI_Model {
    * @param   array   $settings   The field settings.
    * @return  array
    */
-  public function get_years()
+  public function get_years(Array $settings = array())
   {
-    
+    return array('1999' => '1999');
   }
 
 
