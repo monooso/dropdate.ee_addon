@@ -169,8 +169,26 @@ class Test_dropdate_model extends Testee_unit_test_case {
     $this->assertIdentical($expected_result
       ,$this->_subject->get_years($settings));
   }
-  
-  
+
+
+  public function test__get_years__works_with_offset_year_declarations()
+  {
+    $settings = array(
+      'year_from' => 'now-5',
+      'year_to'   => 'now+5'
+    );
+
+    $current_year    = intval(date('Y'));
+    $expected_result = array();
+
+    for ($count = $current_year - 5; $count <= $current_year + 5; $count++)
+    {
+      $expected_result[$count] = $count;
+    }
+
+    $this->assertIdentical($expected_result
+      ,$this->_subject->get_years($settings));
+  }
   
 
 }
