@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DropDate NSM Add-on Updater information.
+ * DropDate package information.
  *
  * @author          Stephen Lewis (http://github.com/experience/)
  * @copyright       Experience Internet
@@ -16,10 +16,9 @@ if ( ! defined('DROPDATE_NAME'))
   define('DROPDATE_VERSION', '2.3.0a1');
 }
 
-$config['name']     = DROPDATE_NAME;
-$config['version']  = DROPDATE_VERSION;
-$config['nsm_addon_updater']['versions_xml']
-  = 'http://experienceinternet.co.uk/software/feeds/dropdate';
+$config['name']    = DROPDATE_NAME;
+$config['version'] = DROPDATE_VERSION;
+
 
 /* End of file      : config.php */
 /* File location    : third_party/dropdate/config.php */
