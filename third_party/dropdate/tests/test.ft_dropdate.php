@@ -14,8 +14,9 @@ require_once PATH_THIRD .'dropdate/models/dropdate_model.php';
 
 class Test_dropdate_ft extends Testee_unit_test_case {
 
-  private $_model;
-  private $_subject;
+  protected $_default_settings;
+  protected $_model;
+  protected $_subject;
 
 
   /* --------------------------------------------------------------
@@ -44,7 +45,17 @@ class Test_dropdate_ft extends Testee_unit_test_case {
 
     $this->EE->dropdate_model = $this->_get_mock('model');
 
-    $this->_model   = $this->EE->dropdate_model;
+    $this->_default_settings = array(
+      'date_format' => Dropdate_model::UNIX_DATE,
+      'year_from'   => '1995',
+      'year_to'     => '2025',
+      'show_time'   => 'no'
+    );
+
+    // Required in subject constructor.
+    $this->_model = $this->EE->dropdate_model;
+    $this->_model->returns('get_default_field_settings', $this->_default_settings);
+
     $this->_subject = new Dropdate_ft();
   }
 
@@ -66,7 +77,7 @@ class Test_dropdate_ft extends Testee_unit_test_case {
     $saved_data = '';
 
     $settings = array(
-      'date_format' => Dropdate_ft::DROPDATE_FMT_UNIX,
+      'date_format' => Dropdate_model::UNIX_DATE,
       'year_from'   => '2000',
       'year_to'     => 'now+10',
       'show_time'   => '15'

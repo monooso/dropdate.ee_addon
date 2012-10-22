@@ -42,6 +42,7 @@ $lang = array(
   'label__month_12' => 'December',
 
   // Exceptions.
+  'exception__invalid_saved_date'    => 'Invalid saved date.',
   'exception__invalid_year_settings' => 'Invalid year settings.',
   'exception__missing_year_settings' => 'Missing year settings.',
 

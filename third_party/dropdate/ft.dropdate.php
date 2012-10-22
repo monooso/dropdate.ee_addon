@@ -13,10 +13,6 @@ require_once dirname(__FILE__) .'/config.php';
 
 class Dropdate_ft extends EE_Fieldtype {
 
-  // Constants.
-  const DROPDATE_FMT_UNIX = 'unix';
-  const DROPDATE_FMT_YMD  = 'ymd';
-
   // Protected properties.
   protected $_model;
 
@@ -56,12 +52,7 @@ class Dropdate_ft extends EE_Fieldtype {
     $this->_model = $this->EE->dropdate_model;
 
     // Set the public properties.
-    $this->default_settings = array(
-      'date_format' => self::DROPDATE_FMT_UNIX,
-      'year_from'   => '1900',
-      'year_to'     => '2020',
-      'show_time'   => 'no'
-    );
+    $this->default_settings = $this->_model->get_default_field_settings();
 
     $this->postpone_saves = TRUE;
 
@@ -366,12 +357,12 @@ class Dropdate_ft extends EE_Fieldtype {
     $format_index = $this->EE->lang->line('label__format');
 
     $format_html = '<label style="margin-right: 20px;">'
-      .form_radio('date_format', self::DROPDATE_FMT_UNIX, ($settings['date_format'] == self::DROPDATE_FMT_UNIX))
+      .form_radio('date_format', Dropdate_model::UNIX_DATE, ($settings['date_format'] == Dropdate_model::UNIX_DATE))
       .' ' .$this->EE->lang->line('label__format_unix')
       .'</label>';
 
     $format_html .= '<label>'
-      .form_radio('date_format', self::DROPDATE_FMT_YMD, ($settings['date_format'] == self::DROPDATE_FMT_YMD))
+      .form_radio('date_format', Dropdate_model::YMD_DATE, ($settings['date_format'] == Dropdate_model::YMD_DATE))
       .' ' .$this->EE->lang->line('label__format_ymd')
       .'</label>';
 
@@ -420,6 +411,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   protected function _display_field_or_cell($field_data = '', $is_cell = FALSE)
   {
+    $this->_model->set_field_settings($this->settings);
     $this->EE->load->helper('form');
 
     $field_name = $is_cell ? $this->cell_name : $this->field_name;

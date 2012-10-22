@@ -234,7 +234,74 @@ class Test_dropdate_model extends Testee_unit_test_case {
     $this->assertIdentical($expected_result
       ,$this->_subject->parse_field_data($field_data));
   }
+
+
+  public function test__parse_field_data__handles_a_saved_unix_string()
+  {
+    $now = new DateTime();
+
+    $expected_result = array(
+      'day'   => $now->format('j'),
+      'month' => $now->format('n'),
+      'year'  => $now->format('Y')
+    );
   
+    $this->_subject->set_field_settings(
+      array('date_format' => Dropdate_model::UNIX_DATE));
+
+    $this->assertIdentical($expected_result
+      ,$this->_subject->parse_field_data($now->format('U')));
+  }
+
+
+  public function test__parse_field_data__handles_a_saved_ymd_string()
+  {
+    $now = new DateTime();
+
+    $expected_result = array(
+      'day'   => $now->format('j'),
+      'month' => $now->format('n'),
+      'year'  => $now->format('Y')
+    );
+  
+    $this->_subject->set_field_settings(
+      array('date_format' => Dropdate_model::YMD_DATE));
+
+    $this->assertIdentical($expected_result
+      ,$this->_subject->parse_field_data($now->format(DateTime::W3C)));
+  }
+
+
+  public function test__parse_field_data__throws_exception_if_invalid_saved_unix_string()
+  {
+    $message   = 'EPIC FAIL!';
+    $exception = new Exception($message);
+
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+  
+    $this->_subject->set_field_settings(
+      array('date_format' => Dropdate_model::UNIX_DATE));
+
+    $this->expectException($exception);
+    $this->_subject->parse_field_data('2012-01-02');
+  }
+
+
+  public function test__parse_field_data__throws_exception_if_invalid_saved_ymd_string()
+  {
+    $message   = 'EPIC FAIL!';
+    $exception = new Exception($message);
+
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+  
+    $this->_subject->set_field_settings(
+      array('date_format' => Dropdate_model::YMD_DATE));
+
+    $this->expectException($exception);
+    $this->_subject->parse_field_data('1234567890');
+  }
 
 
 }

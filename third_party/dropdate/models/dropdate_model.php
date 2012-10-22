@@ -12,12 +12,18 @@ require_once dirname(__FILE__) .'/../config.php';
 
 class Dropdate_model extends CI_Model {
 
+  // Constants.
+  const UNIX_DATE = 'unix';
+  const YMD_DATE  = 'ymd';
+
   protected $EE;
+  protected $_default_field_settings;
+  protected $_field_settings;
   protected $_namespace;
   protected $_package_name;
   protected $_package_title;
   protected $_package_version;
-      protected $_site_id;
+  protected $_site_id;
 
 
   /* --------------------------------------------------------------
@@ -59,8 +65,6 @@ class Dropdate_model extends CI_Model {
     $this->_package_version = $package_version
       ? $package_version : DROPDATE_VERSION;
 
-    // ExpressionEngine is very picky about capitalisation.
-    
     // Initialise the add-on cache.
     if ( ! array_key_exists($this->_namespace, $this->EE->session->cache))
     {
@@ -73,6 +77,15 @@ class Dropdate_model extends CI_Model {
       $this->EE->session->cache[$this->_namespace]
         [$this->_package_name] = array();
     }
+
+    $this->_default_field_settings = array(
+      'date_format' => self::UNIX_DATE,
+      'year_from'   => '1900',
+      'year_to'     => '2020',
+      'show_time'   => 'no'
+    );
+
+    $this->_field_settings = array();
   }
 
 
@@ -273,6 +286,18 @@ class Dropdate_model extends CI_Model {
 
 
   /**
+   * Returns an array of 'default' field settings.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_default_field_settings()
+  {
+    return $this->_default_field_settings;
+  }
+
+
+  /**
    * Returns an associative array of months in the localised language, for use 
    * with the `form_dropdown` Form helper.
    *
@@ -400,7 +425,56 @@ class Dropdate_model extends CI_Model {
       return $date_parts;
     }
 
-    // Is there previously-saved data?
+    // A string should mean we have previously-saved data.
+    if (is_string($field_data))
+    {
+      $timezone = new DateTimeZone('UTC');
+
+      if ($this->_field_settings['date_format'] == self::YMD_DATE)
+      {
+        $date = DateTime::createFromFormat(DateTime::W3C, $field_data, $timezone);
+      }
+      else
+      {
+        $date = DateTime::createFromFormat('U', $field_data, $timezone);
+      }
+
+      // ::createFromFormat returns FALSE if something goes wrong.
+      if ( ! $date instanceof DateTime)
+      {
+        throw new Exception(
+          $this->EE->lang->line('exception__invalid_saved_date'));
+      }
+
+      return array(
+        'day'   => $date->format('j'),
+        'month' => $date->format('n'),
+        'year'  => $date->format('Y')
+      );
+    }
+  }
+
+
+  /**
+   * Sets the field settings. Fieldtypes are a slightly strange, in the EE 
+   * automatically provides the fieldtype itself with a copy of any 
+   * previously-saved settings.
+   *
+   * There's no point in us replicating this functionality, so instead we just 
+   * ensure that the fieldtype passes the settings on to the model, using this 
+   * method.
+   *
+   * This method should be called from the 'display field' method(s) in the 
+   * fieldtype.
+   *
+   * @access  public
+   * @param   array   $settings   The field settings.
+   * @return  void
+   */
+  public function set_field_settings(Array $settings)
+  {
+    $this->_field_settings = $this->update_array_from_input(
+      $this->get_default_field_settings(), $settings);
   }
 
 
