@@ -114,6 +114,54 @@ class Test_dropdate_model extends Testee_unit_test_case {
    * ADD-ON TESTS
    * ------------------------------------------------------------ */
   
+  public function test__get_minutes__uses_one_minute_increments_if_show_time_is_not_an_integer()
+  {
+    $expected_result = array();
+
+    for ($count = 0; $count < 60; $count++)
+    {
+      $expected_result[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+  
+    $settings = array('show_time' => 'no');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_minutes());
+  }
+
+  
+  public function test__get_minutes__uses_five_minute_increments_if_show_time_is_5()
+  {
+    $expected_result = array();
+
+    for ($count = 0; $count < 60; $count += 5)
+    {
+      $expected_result[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+  
+    $settings = array('show_time' => '5');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_minutes());
+  }
+
+  
+  public function test__get_minutes__uses_fifteen_minute_increments_if_show_time_is_15()
+  {
+    $expected_result = array();
+
+    for ($count = 0; $count < 60; $count += 15)
+    {
+      $expected_result[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+  
+    $settings = array('show_time' => '15');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_minutes());
+  }
+
+  
   public function test__get_years__throws_exception_if_missing_settings()
   {
     $message   = 'OH NOES!';
