@@ -57,13 +57,9 @@ class Dropdate_model extends CI_Model {
       include_once PATH_THIRD .'omnilog/classes/omnilogger.php';
     }
 
-    $this->_namespace = $namespace ? strtolower($namespace) : 'experience';
-
-    $this->_package_name = $package_name
-      ? $package_name : DROPDATE_NAME;
-
-    $this->_package_title = $package_title
-      ? $package_title : DROPDATE_TITLE;
+    $this->_namespace     = $namespace ? strtolower($namespace) : 'experience';
+    $this->_package_name  = $package_name ? $package_name : DROPDATE_NAME;
+    $this->_package_title = $package_title ? $package_title : DROPDATE_TITLE;
 
     $this->_package_version = $package_version
       ? $package_version : DROPDATE_VERSION;
