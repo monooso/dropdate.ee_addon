@@ -525,6 +525,36 @@ class Dropdate_model extends CI_Model {
 
 
   /**
+   * Prepares the submitted field data for saving to the database. Returns a 
+   * string in the format specified by the 'date_format' field setting.
+   *
+   * @access  public
+   * @param   array    $field_data    The submitted field data.
+   * @return  string
+   */
+  public function prep_submitted_data_for_save(Array $field_data)
+  {
+    if ( ! array_key_exists('year', $field_data)
+      OR ! array_key_exists('month', $field_data)
+      OR ! array_key_exists('day', $field_data)
+    )
+    {
+      throw new Exception(
+        $this->EE->lang->line('exception__missing_submitted_data'));
+    }
+
+    if ( ! valid_int('year')
+      OR ! valid_int('month', 1, 12)
+      OR ! valid_int('day', 1, 31)
+    )
+    {
+      throw new Exception(
+        $this->EE->lang->line('exception__invalid_submitted_data'));
+    }
+  }
+
+
+  /**
    * Sets the field settings. Fieldtypes are a slightly strange, in the EE 
    * automatically provides the fieldtype itself with a copy of any 
    * previously-saved settings.

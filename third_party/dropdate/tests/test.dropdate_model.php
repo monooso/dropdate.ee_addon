@@ -344,6 +344,47 @@ class Test_dropdate_model extends Testee_unit_test_case {
   }
 
 
+  public function test__prep_submitted_data_for_save__throws_exception_if_missing_data()
+  {
+    $field_data = array(
+      'year'  => '1999',
+      'month' => '2'
+    );
+
+    $message = 'MUCHOS DISASTRE!';
+
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+
+    $exception = new Exception($message);
+    $this->expectException($exception);
+  
+    $this->_subject->prep_submitted_data_for_save($field_data);
+  }
+  
+
+  public function test__prep_submitted_data_for_save__throws_exception_if_invalid_data()
+  {
+    $field_data = array(
+      'year'  => '1999',
+      'month' => '2',
+      'day'   => 'null'
+    );
+
+    $message = 'MUCHOS DISASTRE!';
+
+    $this->EE->lang->expectOnce('line');
+    $this->EE->lang->returns('line', $message);
+
+    $exception = new Exception($message);
+    $this->expectException($exception);
+  
+    $this->_subject->prep_submitted_data_for_save($field_data);
+  }
+  
+
+
+
 }
 
 
