@@ -54,10 +54,15 @@ class Dropdate_ft extends EE_Fieldtype {
     // Set the public properties.
     $this->default_settings = $this->_model->get_default_field_settings();
 
-    $this->postpone_saves = TRUE;
+    // If we're dealing with a specific field, tell the model about its 
+    // settings.
+    if ($this->settings)
+    {
+      $this->_model->set_field_settings($this->settings);
+    }
 
-    // Hidden config. variable.
-    $this->_time_format = $this->EE->config->item('time_format');
+    // @TODO : do I still need this?
+    $this->postpone_saves = TRUE;
   }
 
 
@@ -152,12 +157,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Prepares the field data for saving to the databasae.
    *
    * @access public
-   * @param  string   $data   The submitted field data.
+   * @param  array    $data   The submitted field data.
    * @return string   The data to save.
    */
   public function save($data)
   {
-
+    return $this->_save($data);
   }
 
 
@@ -195,7 +200,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function validate($data)
   {
-
+    // @TODO
   }
 
 
@@ -266,7 +271,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function save_var_field($var_data)
   {
-
+    return $this->_save($var_data);
   }
 
 
@@ -330,7 +335,7 @@ class Dropdate_ft extends EE_Fieldtype {
     $entry_id = FALSE
   )
   {
-    
+    return $this->_save($post_data);
   }
 
 
@@ -411,7 +416,6 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   protected function _display_field_or_cell($field_data = '', $is_cell = FALSE)
   {
-    $this->_model->set_field_settings($this->settings);
     $this->EE->load->helper('form');
 
     $no_value   = Dropdate_model::NO_VALUE;
@@ -419,7 +423,15 @@ class Dropdate_ft extends EE_Fieldtype {
     $field_html = '';
 
     // Parse the field data.
-    $saved_date = $this->_model->parse_field_data($field_data);
+    try
+    {
+      $saved_date = $this->_model->parse_field_data($field_data);
+    }
+    catch (Exception $e)
+    {
+      $this->_model->log_message($e->getMessage(), 3);
+      return $e->getMessage();
+    }
 
     // Days.
     $days_data = $this->_model->get_days();
@@ -468,6 +480,27 @@ class Dropdate_ft extends EE_Fieldtype {
     }
 
     return $field_html;
+  }
+
+
+  /**
+   * Preps the submitted data, and returns it for saving.
+   *
+   * @access  protected
+   * @param   array    $field_data    The submitted data.
+   * @return  string
+   */
+  protected function _save($field_data)
+  {
+    try
+    {
+      return $this->_model->prep_submitted_data_for_save($field_data);
+    }
+    catch (Exception $e)
+    {
+      $this->_model->log_message($e->getMessage(), 3);
+      return '';
+    }
   }
 
 
