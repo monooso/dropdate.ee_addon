@@ -237,11 +237,11 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__parse_field_data__handles_an_empty_string()
   {
     $expected_result = array(
-      'year'   => FALSE,
-      'month'  => FALSE,
-      'day'    => FALSE,
-      'hour'   => FALSE,
-      'minute' => FALSE
+      'year'   => Dropdate_model::NO_VALUE,
+      'month'  => Dropdate_model::NO_VALUE,
+      'day'    => Dropdate_model::NO_VALUE,
+      'hour'   => Dropdate_model::NO_VALUE,
+      'minute' => Dropdate_model::NO_VALUE
     );
   
     $this->assertIdentical($expected_result
@@ -260,7 +260,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
     );
   
     $expected_result = array(
-      'year'   => FALSE,
+      'year'   => Dropdate_model::NO_VALUE,
       'month'  => 2,
       'day'    => 19,
       'hour'   => 13,

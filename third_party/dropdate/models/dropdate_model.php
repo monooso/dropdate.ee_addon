@@ -15,6 +15,7 @@ class Dropdate_model extends CI_Model {
   // Constants.
   const UNIX_DATE = 'unix';
   const YMD_DATE  = 'ymd';
+  const NO_VALUE  = 'null';    // Used for non-date values in dropdowns.
 
   protected $EE;
   protected $_default_field_settings;
@@ -438,11 +439,11 @@ class Dropdate_model extends CI_Model {
   public function parse_field_data($field_data = '')
   {
     $date_parts = array(
-      'year'   => FALSE,
-      'month'  => FALSE,
-      'day'    => FALSE,
-      'hour'   => FALSE,
-      'minute' => FALSE
+      'year'   => self::NO_VALUE,
+      'month'  => self::NO_VALUE,
+      'day'    => self::NO_VALUE,
+      'hour'   => self::NO_VALUE,
+      'minute' => self::NO_VALUE
     );
 
     // Start with the assumption that there is no saved or submitted data.
