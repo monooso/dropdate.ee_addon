@@ -414,54 +414,58 @@ class Dropdate_ft extends EE_Fieldtype {
     $this->_model->set_field_settings($this->settings);
     $this->EE->load->helper('form');
 
+    $no_value   = Dropdate_model::NO_VALUE;
     $field_name = $is_cell ? $this->cell_name : $this->field_name;
     $field_html = '';
 
-    // TEMPORARY.
-    $saved_day    = 19;
-    $saved_month  = 2;
-    $saved_year   = 1973;
-    $saved_hour   = 5;
-    $saved_minute = 30;
+    // Parse the field data.
+    $saved_date = $this->_model->parse_field_data($field_data);
 
     // Days.
     $days_data = $this->_model->get_days();
-    $days_data = array('null' => $this->EE->lang->line('label__day'))
+    $days_data = array($no_value => $this->EE->lang->line('label__day'))
       + $days_data;
 
-    $field_html .= form_dropdown("{$field_name}[day]", $days_data, $saved_day);
+    $field_html .= form_dropdown("{$field_name}[day]", $days_data,
+      $saved_date['day']);
 
     // Months.
     $months_data = $this->_model->get_months();
-    $months_data = array('null' => $this->EE->lang->line('label__month'))
+    $months_data = array($no_value => $this->EE->lang->line('label__month'))
       + $months_data;
 
     $field_html .= NBS .form_dropdown("{$field_name}[month]", $months_data,
-      $saved_month);
+      $saved_date['month']);
 
     // Years.
     $years_data = $this->_model->get_years();
-    $years_data = array('null' => $this->EE->lang->line('label__year'))
+    $years_data = array($no_value => $this->EE->lang->line('label__year'))
       + $years_data;
 
     $field_html .= NBS .form_dropdown("{$field_name}[year]", $years_data,
-      $saved_year);
+      $saved_date['year']);
 
-    // Hours.
-    $hours_data = $this->_model->get_hours();
-    $hours_data = array('null' => $this->EE->lang->line('label__hour'))
-      + $hours_data;
 
-    $field_html .= NBS .form_dropdown("{$field_name}[hour]", $hours_data,
-      $saved_hour);
+    if ($this->settings['show_time'] != 'no')
+    {
+      $field_html .= '&nbsp;&nbsp;at&nbsp;';
 
-    // Minute.
-    $minutes_data = $this->_model->get_minutes();
-    $minutes_data = array('null' => $this->EE->lang->line('label__minute'))
-      + $minutes_data;
+      // Hours.
+      $hours_data = $this->_model->get_hours();
+      $hours_data = array($no_value => $this->EE->lang->line('label__hour'))
+        + $hours_data;
 
-    $field_html .= NBS .form_dropdown("{$field_name}[minute]", $minutes_data,
-      $saved_minute);
+      $field_html .= NBS .form_dropdown("{$field_name}[hour]", $hours_data,
+        $saved_date['hour']);
+
+      // Minute.
+      $minutes_data = $this->_model->get_minutes();
+      $minutes_data = array($no_value => $this->EE->lang->line('label__minute'))
+        + $minutes_data;
+
+      $field_html .= NBS .form_dropdown("{$field_name}[minute]", $minutes_data,
+        $saved_date['minute']);
+    }
 
     return $field_html;
   }
