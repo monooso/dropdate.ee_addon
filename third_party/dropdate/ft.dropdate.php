@@ -42,7 +42,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function __construct()
   {
-    $this->EE =& get_instance();
+    parent::__construct();
 
     $this->EE->load->add_package_path(PATH_THIRD .'dropdate/');
     $this->EE->lang->loadfile('dropdate_ft', 'dropdate');
