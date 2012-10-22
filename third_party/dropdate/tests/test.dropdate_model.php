@@ -211,9 +211,11 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__parse_field_data__handles_an_empty_string()
   {
     $expected_result = array(
-      'day'   => FALSE,
-      'month' => FALSE,
-      'year'  => FALSE
+      'year'   => FALSE,
+      'month'  => FALSE,
+      'day'    => FALSE,
+      'hour'   => FALSE,
+      'minute' => FALSE
     );
   
     $this->assertIdentical($expected_result
@@ -223,14 +225,22 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__parse_field_data__handles_an_associative_array()
   {
+    $field_data = array(
+      'year'   => 'null',
+      'month'  => '2',
+      'day'    => '19',
+      'hour'   => '13',
+      'minute' => '25'
+    );
+  
     $expected_result = array(
-      'day'   => '19',
-      'month' => '2',
-      'year'  => FALSE
+      'year'   => FALSE,
+      'month'  => 2,
+      'day'    => 19,
+      'hour'   => 13,
+      'minute' => 25
     );
 
-    $field_data = array('day' => '19', 'month' => '2', 'year' => 'null');
-  
     $this->assertIdentical($expected_result
       ,$this->_subject->parse_field_data($field_data));
   }
@@ -238,12 +248,14 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__parse_field_data__handles_a_saved_unix_string()
   {
-    $now = new DateTime();
+    $now = new DateTime('now', new DateTimeZone('UTC'));
 
     $expected_result = array(
-      'day'   => $now->format('j'),
-      'month' => $now->format('n'),
-      'year'  => $now->format('Y')
+      'year'   => intval($now->format('Y')),
+      'month'  => intval($now->format('n')),
+      'day'    => intval($now->format('j')),
+      'hour'   => intval($now->format('G')),
+      'minute' => intval($now->format('i'))
     );
   
     $this->_subject->set_field_settings(
@@ -256,12 +268,14 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__parse_field_data__handles_a_saved_ymd_string()
   {
-    $now = new DateTime();
+    $now = new DateTime('now', new DateTimeZone('UTC'));
 
     $expected_result = array(
-      'day'   => $now->format('j'),
-      'month' => $now->format('n'),
-      'year'  => $now->format('Y')
+      'year'   => intval($now->format('Y')),
+      'month'  => intval($now->format('n')),
+      'day'    => intval($now->format('j')),
+      'hour'   => intval($now->format('G')),
+      'minute' => intval($now->format('i'))
     );
   
     $this->_subject->set_field_settings(

@@ -85,7 +85,9 @@ class Dropdate_model extends CI_Model {
       'show_time'   => 'no'
     );
 
-    $this->_field_settings = array();
+    // This should be set by the fieldtype using the `set_field_settings`. We 
+    // set some default values here, just in case.
+    $this->_field_settings = $this->_default_field_settings;
   }
 
 
@@ -298,6 +300,50 @@ class Dropdate_model extends CI_Model {
 
 
   /**
+   * Returns an associative array of hours, for use with the `form_dropdown` 
+   * Form helper.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_hours()
+  {
+    $hours = array();
+
+    for ($count = 0; $count < 24; $count++)
+    {
+      $hours[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+
+    return $hours;
+  }
+
+
+  /**
+   * Returns an associative array of minutes, for use with the `form_dropdown` 
+   * Form helper.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_minutes()
+  {
+    $minutes = array();
+
+    $step = valid_int($this->_field_settings['show_time'])
+      ? intval($this->_field_settings['show_time'])
+      : 1;
+
+    for ($count = 0; $count < 60; $count += $step)
+    {
+      $minutes[$count] = str_pad($count, 2, '0', STR_PAD_LEFT);
+    }
+
+    return $minutes;
+  }
+
+
+  /**
    * Returns an associative array of months in the localised language, for use 
    * with the `form_dropdown` Form helper.
    *
@@ -389,9 +435,11 @@ class Dropdate_model extends CI_Model {
   public function parse_field_data($field_data = '')
   {
     $date_parts = array(
-      'day'   => FALSE,
-      'month' => FALSE,
-      'year'  => FALSE
+      'year'   => FALSE,
+      'month'  => FALSE,
+      'day'    => FALSE,
+      'hour'   => FALSE,
+      'minute' => FALSE
     );
 
     // Start with the assumption that there is no saved or submitted data.
@@ -402,24 +450,39 @@ class Dropdate_model extends CI_Model {
 
     // If $field_data is an array, it (should) mean we have form data.
     if (is_array($field_data)
-      && array_key_exists('day', $field_data)
-      && array_key_exists('month', $field_data)
       && array_key_exists('year', $field_data)
+      && array_key_exists('month', $field_data)
+      && array_key_exists('day', $field_data)
     )
     {
       if (valid_int($field_data['day'], 1, 31))
       {
-        $date_parts['day'] = $field_data['day'];
+        $date_parts['day'] = intval($field_data['day']);
       }
 
       if (valid_int($field_data['month'], 1, 12))
       {
-        $date_parts['month'] = $field_data['month'];
+        $date_parts['month'] = intval($field_data['month']);
       }
 
       if (valid_int($field_data['year']))
       {
-        $date_parts['year'] = $field_data['year'];
+        $date_parts['year'] = intval($field_data['year']);
+      }
+
+      // Hour and minute are optional.
+      if (array_key_exists('hour', $field_data)
+        && valid_int($field_data['hour'], 0, 23)
+      )
+      {
+        $date_parts['hour'] = intval($field_data['hour']);
+      }
+
+      if (array_key_exists('minute', $field_data)
+        && valid_int($field_data['minute'], 0, 59)
+      )
+      {
+        $date_parts['minute'] = intval($field_data['minute']);
       }
 
       return $date_parts;
@@ -447,9 +510,11 @@ class Dropdate_model extends CI_Model {
       }
 
       return array(
-        'day'   => $date->format('j'),
-        'month' => $date->format('n'),
-        'year'  => $date->format('Y')
+        'year'   => intval($date->format('Y')),
+        'month'  => intval($date->format('n')),
+        'day'    => intval($date->format('j')),
+        'hour'   => intval($date->format('G')),
+        'minute' => intval($date->format('i'))    // intval strips leading zero.
       );
     }
   }
