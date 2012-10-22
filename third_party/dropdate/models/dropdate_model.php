@@ -367,14 +367,18 @@ class Dropdate_model extends CI_Model {
    * Returns an associative array of years, for use with the `form_dropdown` 
    * Form helper.
    *
+   * Callers should ensure that the `set_field_settings` method has been called 
+   * prior to running this method.
+   *
    * @access  public
-   * @param   array   $settings   The field settings.
    * @return  array
    */
-  public function get_years(Array $settings = array())
+  public function get_years()
   {
-    if ( ! array_key_exists('year_from', $settings)
-      OR ! array_key_exists('year_to', $settings)
+    $s =& $this->_field_settings;
+
+    if ( ! array_key_exists('year_from', $s)
+      OR ! array_key_exists('year_to', $s)
     )
     {
       throw new Exception(
@@ -384,8 +388,8 @@ class Dropdate_model extends CI_Model {
     // Parse the 'from' and 'to' years.
     $date_pattern = '/^(now([\-|+]))?(\d+)$/i';
 
-    if ( ! preg_match($date_pattern, $settings['year_from'], $from_matches)
-      OR ! preg_match($date_pattern, $settings['year_to'], $to_matches)
+    if ( ! preg_match($date_pattern, $s['year_from'], $from_matches)
+      OR ! preg_match($date_pattern, $s['year_to'], $to_matches)
     )
     {
       throw new Exception(

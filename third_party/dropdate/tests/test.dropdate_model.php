@@ -162,45 +162,24 @@ class Test_dropdate_model extends Testee_unit_test_case {
   }
 
   
-  public function test__get_years__throws_exception_if_missing_settings()
-  {
-    $message   = 'OH NOES!';
-    $exception = new Exception($message);
-    $settings  = array('not_helpful' => 'wibble');
-
-    $this->EE->lang->expectOnce('line');
-    $this->EE->lang->returns('line', $message);
-  
-    $this->expectException($exception);
-    $this->_subject->get_years($settings);
-  }
-
-
   public function test__get_years__throws_exception_if_invalid_year_format()
   {
     $message   = 'EPIC FAIL!';
     $exception = new Exception($message);
 
-    $settings = array(
-      'year_from' => '1999-ish',
-      'year_to'   => '2012'
-    );
-  
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
   
+    $settings = array('year_from' => '1999-ish', 'year_to' => '2012');
+    $this->_subject->set_field_settings($settings);
+
     $this->expectException($exception);
-    $this->_subject->get_years($settings);
+    $this->_subject->get_years();
   }
 
 
   public function test__get_years__works_with_simple_year_declarations()
   {
-    $settings = array(
-      'year_from' => '2001',
-      'year_to'   => '2010'
-    );
-
     $expected_result = array(
       2001 => 2001,
       2002 => 2002,
@@ -213,18 +192,16 @@ class Test_dropdate_model extends Testee_unit_test_case {
       2009 => 2009,
       2010 => 2010
     );
-  
-    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
+
+    $settings = array('year_from' => '2001', 'year_to' => '2010');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_years());
   }
 
 
   public function test__get_years__works_with_offset_year_declarations()
   {
-    $settings = array(
-      'year_from' => 'now-5',
-      'year_to'   => 'now+5'
-    );
-
     $current_year    = intval(date('Y'));
     $expected_result = array();
 
@@ -233,17 +210,15 @@ class Test_dropdate_model extends Testee_unit_test_case {
       $expected_result[$count] = $count;
     }
 
-    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
+    $settings = array('year_from' => 'now-5', 'year_to' => 'now+5');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_years());
   }
 
 
   public function test__get_years__can_count_backwards()
   {
-    $settings = array(
-      'year_from' => 'now+5',
-      'year_to'   => 'now-5'
-    );
-
     $current_year    = intval(date('Y'));
     $expected_result = array();
 
@@ -252,7 +227,10 @@ class Test_dropdate_model extends Testee_unit_test_case {
       $expected_result[$count] = $count;
     }
 
-    $this->assertIdentical($expected_result, $this->_subject->get_years($settings));
+    $settings = array('year_from' => 'now+5', 'year_to' => 'now-5');
+    $this->_subject->set_field_settings($settings);
+
+    $this->assertIdentical($expected_result, $this->_subject->get_years());
   }
 
 
