@@ -48,6 +48,9 @@ class Dropdate_model extends CI_Model {
 
     $this->EE =& get_instance();
 
+    // Load the number helper.
+    $this->EE->load->helper('EI_number_helper');
+
     // Load the OmniLogger class.
     if (file_exists(PATH_THIRD .'omnilog/classes/omnilogger.php'))
     {
