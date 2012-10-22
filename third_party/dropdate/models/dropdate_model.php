@@ -503,7 +503,9 @@ class Dropdate_model extends CI_Model {
       }
       else
       {
-        $date = DateTime::createFromFormat('U', $field_data, $timezone);
+        $date = valid_int($field_data)
+          ? new DateTime('@' .$field_data)
+          : FALSE;
       }
 
       // ::createFromFormat returns FALSE if something goes wrong.

@@ -274,7 +274,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__parse_field_data__handles_a_saved_unix_string()
   {
-    $now = new DateTime('now', new DateTimeZone('UTC'));
+    $now = new DateTime('1969-03-14 15:35:00', new DateTimeZone('UTC'));
 
     $expected_result = array(
       'year'   => intval($now->format('Y')),
