@@ -418,9 +418,11 @@ class Dropdate_ft extends EE_Fieldtype {
     $field_html = '';
 
     // TEMPORARY.
-    $saved_day = 19;
-    $saved_month = 2;
-    $saved_year = 1973;
+    $saved_day    = 19;
+    $saved_month  = 2;
+    $saved_year   = 1973;
+    $saved_hour   = 5;
+    $saved_minute = 30;
 
     // Days.
     $days_data = $this->_model->get_days();
@@ -438,14 +440,28 @@ class Dropdate_ft extends EE_Fieldtype {
       $saved_month);
 
     // Years.
-    $years_data = $this->_model->get_years($this->settings);
+    $years_data = $this->_model->get_years();
     $years_data = array('null' => $this->EE->lang->line('label__year'))
       + $years_data;
 
     $field_html .= NBS .form_dropdown("{$field_name}[year]", $years_data,
       $saved_year);
 
-    // Time.
+    // Hours.
+    $hours_data = $this->_model->get_hours();
+    $hours_data = array('null' => $this->EE->lang->line('label__hour'))
+      + $hours_data;
+
+    $field_html .= NBS .form_dropdown("{$field_name}[hour]", $hours_data,
+      $saved_hour);
+
+    // Minute.
+    $minutes_data = $this->_model->get_minutes();
+    $minutes_data = array('null' => $this->EE->lang->line('label__minute'))
+      + $minutes_data;
+
+    $field_html .= NBS .form_dropdown("{$field_name}[minute]", $minutes_data,
+      $saved_minute);
 
     return $field_html;
   }

@@ -72,7 +72,7 @@ class Test_dropdate_ft extends Testee_unit_test_case {
   }
 
 
-  public function test__display_field__retrieves_day_month_year_data_from_model()
+  public function test__display_field__retrieves_dropdown_data_from_model()
   {
     $saved_data = '';
 
@@ -83,39 +83,30 @@ class Test_dropdate_ft extends Testee_unit_test_case {
       'show_time'   => '15'
     );
 
-    $days = array(
-      '1' => '01',
-      '2' => '02',
-      '3' => '03'
-    );
-
-    $months = array(
-      '1' => 'Jan',
-      '2' => 'Feb',
-      '3' => 'Mar'
-    );
-
-    $years = array(
-      '2000' => '2000',
-      '2001' => '2001',
-      '2002' => '2002'
-    );
+    $years   = array('2000' => '2000', '2001' => '2001', '2002' => '2002');
+    $months  = array('1' => 'Jan', '2' => 'Feb', '3' => 'Mar');
+    $days    = array('1' => '01', '2' => '02', '3' => '03');
+    $hours   = array('0' => '00', '1' => '01', '2' => '02');
+    $minutes = array('0' => '00', '15' => '15', '30' => '30');
 
     $this->_subject->settings = $settings;
 
     $this->EE->load->expectOnce('helper', array('form'));
 
-    $this->_model->expectOnce('get_days');
+    $this->_model->expectOnce('get_years');
     $this->_model->expectOnce('get_months');
-    $this->_model->expectOnce('get_years', array($settings));
+    $this->_model->expectOnce('get_days');
+    $this->_model->expectOnce('get_hours');
+    $this->_model->expectOnce('get_minutes');
 
-    $this->_model->returns('get_days', $days);
-    $this->_model->returns('get_months', $months);
     $this->_model->returns('get_years', $years);
+    $this->_model->returns('get_months', $months);
+    $this->_model->returns('get_days', $days);
+    $this->_model->returns('get_hours', $hours);
+    $this->_model->returns('get_minutes', $minutes);
   
     $this->_subject->display_field($saved_data);
   }
-  
 
 
 
