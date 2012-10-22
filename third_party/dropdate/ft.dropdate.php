@@ -54,13 +54,6 @@ class Dropdate_ft extends EE_Fieldtype {
     // Set the public properties.
     $this->default_settings = $this->_model->get_default_field_settings();
 
-    // If we're dealing with a specific field, tell the model about its 
-    // settings.
-    if ($this->settings)
-    {
-      $this->_model->set_field_settings($this->settings);
-    }
-
     // @TODO : do I still need this?
     $this->postpone_saves = TRUE;
   }
@@ -416,11 +409,13 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   protected function _display_field_or_cell($field_data = '', $is_cell = FALSE)
   {
+    $this->_model->set_field_settings($this->settings);
     $this->EE->load->helper('form');
 
     $no_value   = Dropdate_model::NO_VALUE;
     $field_name = $is_cell ? $this->cell_name : $this->field_name;
     $field_html = '';
+    $notice     = array();
 
     // Parse the field data.
     try
@@ -430,7 +425,9 @@ class Dropdate_ft extends EE_Fieldtype {
     catch (Exception $e)
     {
       $this->_model->log_message($e->getMessage(), 3);
-      return $e->getMessage();
+
+      $notice[]   = $e->getMessage();
+      $saved_date = $this->_model->parse_field_data('');
     }
 
     // Days.
@@ -479,6 +476,13 @@ class Dropdate_ft extends EE_Fieldtype {
         $saved_date['minute']);
     }
 
+    // Append an error messages.
+    if ($notice)
+    {
+      $field_html .= '<div class="notice">'
+        .implode($notice, '<br />') .'</div>';
+    }
+
     return $field_html;
   }
 
@@ -492,6 +496,8 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   protected function _save($field_data)
   {
+    $this->_model->set_field_settings($this->settings);
+
     try
     {
       return $this->_model->prep_submitted_data_for_save($field_data);
