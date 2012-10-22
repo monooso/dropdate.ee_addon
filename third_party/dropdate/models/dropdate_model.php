@@ -543,14 +543,40 @@ class Dropdate_model extends CI_Model {
         $this->EE->lang->line('exception__missing_submitted_data'));
     }
 
-    if ( ! valid_int('year')
-      OR ! valid_int('month', 1, 12)
-      OR ! valid_int('day', 1, 31)
+    if ( ! valid_int($field_data['year'])
+      OR ! valid_int($field_data['month'], 1, 12)
+      OR ! valid_int($field_data['day'], 1, 31)
     )
     {
       throw new Exception(
         $this->EE->lang->line('exception__invalid_submitted_data'));
     }
+
+    $year  = $field_data['year'];
+    $month = str_pad($field_data['month'], 2, '0', STR_PAD_LEFT);
+    $day   = str_pad($field_data['day'], 2, '0', STR_PAD_LEFT);
+
+    // Time?
+    if (array_key_exists('hour', $field_data)
+      && array_key_exists('minute', $field_data)
+      && valid_int($field_data['hour'], 0, 23)
+      && valid_int($field_data['minute'], 0, 59)
+    )
+    {
+      $hour   = str_pad($field_data['hour'], 2, '0', STR_PAD_LEFT);
+      $minute = str_pad($field_data['minute'], 2, '0', STR_PAD_LEFT);
+    }
+    else
+    {
+      $hour = $minute = '00';
+    }
+
+    $date = new DateTime("{$year}-{$month}-{$day} {$hour}:{$minute}:00",
+      new DateTimeZone('UTC'));
+
+    return $this->_field_settings['date_format'] == self::YMD_DATE
+      ? $date->format(DateTime::W3C)
+      : $date->format('U');
   }
 
 

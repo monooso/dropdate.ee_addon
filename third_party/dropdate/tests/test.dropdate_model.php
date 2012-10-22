@@ -381,9 +381,88 @@ class Test_dropdate_model extends Testee_unit_test_case {
   
     $this->_subject->prep_submitted_data_for_save($field_data);
   }
+
+
+  public function test__prep_submitted_data_for_save__returns_valid_unix_timestamp()
+  {
+    $field_data = array(
+      'year'  => '1969',
+      'month' => '3',
+      'day'   => '14'
+    );
+
+    $settings = array('date_format' => Dropdate_model::UNIX_DATE);
+    $this->_subject->set_field_settings($settings);
+
+    $date = new DateTime('1969-03-14', new DateTimeZone('UTC'));
+    $expected_result = $date->format('U');
   
+    $this->assertIdentical($expected_result,
+      $this->_subject->prep_submitted_data_for_save($field_data));
+  }
+  
+  
+  public function test__prep_submitted_data_for_save__returns_valid_unix_timestamp_with_hours_and_minutes()
+  {
+    $field_data = array(
+      'year'   => '1969',
+      'month'  => '3',
+      'day'    => '14',
+      'hour'   => '9',
+      'minute' => '35'
+    );
 
+    $settings = array('date_format' => Dropdate_model::UNIX_DATE);
+    $this->_subject->set_field_settings($settings);
 
+    $date = new DateTime('1969-03-14 09:35:00', new DateTimeZone('UTC'));
+    $expected_result = $date->format('U');
+  
+    $this->assertIdentical($expected_result,
+      $this->_subject->prep_submitted_data_for_save($field_data));
+  }
+  
+  
+  public function test__prep_submitted_data_for_save__returns_valid_ymd_string()
+  {
+    $field_data = array(
+      'year'  => '1969',
+      'month' => '3',
+      'day'   => '14'
+    );
+
+    $settings = array('date_format' => Dropdate_model::YMD_DATE);
+    $this->_subject->set_field_settings($settings);
+
+    $date = new DateTime('1969-03-14', new DateTimeZone('UTC'));
+    $expected_result = $date->format(DateTime::W3C);
+  
+    $this->assertIdentical($expected_result,
+      $this->_subject->prep_submitted_data_for_save($field_data));
+  }
+  
+  
+  public function test__prep_submitted_data_for_save__returns_valid_ymd_string_with_hours_and_minutes()
+  {
+    $field_data = array(
+      'year'   => '1969',
+      'month'  => '3',
+      'day'    => '14',
+      'hour'   => '8',
+      'minute' => '5'
+    );
+
+    $settings = array('date_format' => Dropdate_model::YMD_DATE);
+    $this->_subject->set_field_settings($settings);
+
+    $date = new DateTime('1969-03-14 08:05:00', new DateTimeZone('UTC'));
+    $expected_result = $date->format(DateTime::W3C);
+  
+    $this->assertIdentical($expected_result,
+      $this->_subject->prep_submitted_data_for_save($field_data));
+  }
+  
+  
 
 }
 
