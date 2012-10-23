@@ -165,7 +165,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__get_years__throws_exception_if_invalid_year_format()
   {
     $message   = 'EPIC FAIL!';
-    $exception = new Exception($message);
+    $exception = new DropDateException_InvalidFieldSettings($message);
 
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
@@ -252,7 +252,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__parse_field_data__handles_an_associative_array()
   {
     $field_data = array(
-      'year'   => 'null',
+      'year'   => '1969',
       'month'  => '2',
       'day'    => '19',
       'hour'   => '13',
@@ -260,7 +260,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
     );
   
     $expected_result = array(
-      'year'   => Dropdate_model::NO_VALUE,
+      'year'   => 1969,
       'month'  => 2,
       'day'    => 19,
       'hour'   => 13,
@@ -315,7 +315,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__parse_field_data__throws_exception_if_invalid_saved_unix_string()
   {
     $message   = 'EPIC FAIL!';
-    $exception = new Exception($message);
+    $exception = new DropDateException_InvalidSavedDate($message);
 
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
@@ -331,7 +331,7 @@ class Test_dropdate_model extends Testee_unit_test_case {
   public function test__parse_field_data__throws_exception_if_invalid_saved_ymd_string()
   {
     $message   = 'EPIC FAIL!';
-    $exception = new Exception($message);
+    $exception = new DropDateException_InvalidSavedDate($message);
 
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
@@ -346,17 +346,14 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__prep_submitted_data_for_save__throws_exception_if_missing_data()
   {
-    $field_data = array(
-      'year'  => '1999',
-      'month' => '2'
-    );
+    $field_data = array('year' => '1999', 'month' => '2');
 
     $message = 'MUCHOS DISASTRE!';
 
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
 
-    $exception = new Exception($message);
+    $exception = new DropDateException_InvalidSubmittedDate($message);
     $this->expectException($exception);
   
     $this->_subject->prep_submitted_data_for_save($field_data);
@@ -365,18 +362,14 @@ class Test_dropdate_model extends Testee_unit_test_case {
 
   public function test__prep_submitted_data_for_save__throws_exception_if_invalid_data()
   {
-    $field_data = array(
-      'year'  => '1999',
-      'month' => '2',
-      'day'   => 'null'
-    );
+    $field_data = array('year' => '1999', 'month' => '2', 'day' => 'null');
 
     $message = 'MUCHOS DISASTRE!';
 
     $this->EE->lang->expectOnce('line');
     $this->EE->lang->returns('line', $message);
 
-    $exception = new Exception($message);
+    $exception = new DropDateException_InvalidSubmittedDate($message);
     $this->expectException($exception);
   
     $this->_subject->prep_submitted_data_for_save($field_data);

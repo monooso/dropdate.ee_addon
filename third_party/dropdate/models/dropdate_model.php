@@ -8,6 +8,7 @@
  * @package         Dropdate
  */
 
+require_once dirname(__FILE__) .'/../classes/dropdate_exceptions.php';
 require_once dirname(__FILE__) .'/../config.php';
 
 class Dropdate_model extends CI_Model {
@@ -268,6 +269,103 @@ class Dropdate_model extends CI_Model {
    * ------------------------------------------------------------ */
 
   /**
+   * Converts the supplied field data to a DateTime object, if possible.
+   *
+   * The field data may be:
+   * 1. An empty string (i.e. no field data), in which case the method returns 
+   *    FALSE.
+   * 2. A saved string, in UNIX or YMD format.
+   * 3. An array of field values, from a Publish / Edit form (or SafeCracker 
+   *    form) submission.
+   *
+   * In the case of options 2 and 3, the method will attempt to convert the data 
+   * into a valid DateTime object. If this fails, the method will throw an 
+   * exception.
+   *
+   * @access  public
+   * @param   mixed    $field_data    The field data.
+   * @return  mixed
+   */
+  public function convert_field_data_to_datetime($field_data)
+  {
+    // Start with the assumption that there is no data.
+    if ( ! $field_data)
+    {
+      return FALSE;
+    }
+
+    $timezone = new DateTimeZone('UTC');
+
+    // If $field_data is an array, it (should) mean we have form data.
+    if (is_array($field_data))
+    {
+      if ( ! array_key_exists('year', $field_data)
+        OR ! array_key_exists('month', $field_data)
+        OR ! array_key_exists('day', $field_data)
+        OR ! valid_int($field_data['day'], 1, 31)
+        OR ! valid_int($field_data['month'], 1, 12)
+        OR ! valid_int($field_data['year'])
+      )
+      {
+        throw new DropDateException_InvalidSubmittedDate(
+          $this->EE->lang->line('exception__invalid_submitted_date'));
+      }
+      else
+      {
+        $year  = $field_data['year'];
+        $month = str_pad($field_data['month'], 2, '0', STR_PAD_LEFT);
+        $day   = str_pad($field_data['day'], 2, '0', STR_PAD_LEFT);
+
+        // Hour and minute are optional.
+        $hour = $minute = '00';
+
+        if (array_key_exists('hour', $field_data)
+          && valid_int($field_data['hour'], 0, 23)
+        )
+        {
+          $hour = str_pad($field_data['hour'], 2, '0', STR_PAD_LEFT);
+        }
+
+        if (array_key_exists('minute', $field_data)
+          && valid_int($field_data['minute'], 0, 59)
+        )
+        {
+          $minute = str_pad($field_data['minute'], 2, '0', STR_PAD_LEFT);
+        }
+
+        // Return the DateTime object.
+        return new DateTime("{$year}-{$month}-{$day} {$hour}:{$minute}:00",
+          $timezone);
+      }
+    }
+
+    // A string should mean we have previously-saved data.
+    if (is_string($field_data))
+    {
+      if ($this->_field_settings['date_format'] == self::YMD_DATE)
+      {
+        $date = DateTime::createFromFormat(DateTime::W3C, $field_data, $timezone);
+      }
+      else
+      {
+        $date = valid_int($field_data)
+          ? new DateTime('@' .$field_data)
+          : FALSE;
+      }
+
+      if ( ! $date instanceof DateTime)
+      {
+        throw new DropDateException_InvalidSavedDate(
+          $this->EE->lang->line('exception__invalid_saved_date'));
+      }
+
+      // Return the DateTime object.
+      return $date;
+    }
+  }
+
+
+  /**
    * Returns an associative array of days, for use with the `form_dropdown` Form 
    * helper.
    *
@@ -381,7 +479,7 @@ class Dropdate_model extends CI_Model {
       OR ! array_key_exists('year_to', $s)
     )
     {
-      throw new Exception(
+      throw new DropDateException_InvalidFieldSettings(
         $this->EE->lang->line('exception__missing_year_settings'));
     }
 
@@ -392,7 +490,7 @@ class Dropdate_model extends CI_Model {
       OR ! preg_match($date_pattern, $s['year_to'], $to_matches)
     )
     {
-      throw new Exception(
+      throw new DropDateException_InvalidFieldSettings(
         $this->EE->lang->line('exception__invalid_year_settings'));
     }
 
@@ -446,83 +544,22 @@ class Dropdate_model extends CI_Model {
       'minute' => self::NO_VALUE
     );
 
-    // Start with the assumption that there is no saved or submitted data.
-    if ( ! $field_data)
+    // Exceptions are allowed to bubble.
+    $date = $this->convert_field_data_to_datetime($field_data);
+
+    if ($date === FALSE)
     {
       return $date_parts;
     }
 
-    // If $field_data is an array, it (should) mean we have form data.
-    if (is_array($field_data)
-      && array_key_exists('year', $field_data)
-      && array_key_exists('month', $field_data)
-      && array_key_exists('day', $field_data)
-    )
-    {
-      if (valid_int($field_data['day'], 1, 31))
-      {
-        $date_parts['day'] = intval($field_data['day']);
-      }
-
-      if (valid_int($field_data['month'], 1, 12))
-      {
-        $date_parts['month'] = intval($field_data['month']);
-      }
-
-      if (valid_int($field_data['year']))
-      {
-        $date_parts['year'] = intval($field_data['year']);
-      }
-
-      // Hour and minute are optional.
-      if (array_key_exists('hour', $field_data)
-        && valid_int($field_data['hour'], 0, 23)
-      )
-      {
-        $date_parts['hour'] = intval($field_data['hour']);
-      }
-
-      if (array_key_exists('minute', $field_data)
-        && valid_int($field_data['minute'], 0, 59)
-      )
-      {
-        $date_parts['minute'] = intval($field_data['minute']);
-      }
-
-      return $date_parts;
-    }
-
-    // A string should mean we have previously-saved data.
-    if (is_string($field_data))
-    {
-      $timezone = new DateTimeZone('UTC');
-
-      if ($this->_field_settings['date_format'] == self::YMD_DATE)
-      {
-        $date = DateTime::createFromFormat(DateTime::W3C, $field_data, $timezone);
-      }
-      else
-      {
-        $date = valid_int($field_data)
-          ? new DateTime('@' .$field_data)
-          : FALSE;
-      }
-
-      // ::createFromFormat returns FALSE if something goes wrong.
-      if ( ! $date instanceof DateTime)
-      {
-        throw new Exception(
-          $this->EE->lang->line('exception__invalid_saved_date'));
-      }
-
-      return array(
-        'year'   => intval($date->format('Y')),
-        'month'  => intval($date->format('n')),
-        'day'    => intval($date->format('j')),
-        'hour'   => intval($date->format('G')),
-        'minute' => intval($date->format('i'))    // intval strips leading zero.
-      );
-    }
+    // Split the DateTime object into its constituent parts.
+    return array(
+      'year'   => intval($date->format('Y')),
+      'month'  => intval($date->format('n')),
+      'day'    => intval($date->format('j')),
+      'hour'   => intval($date->format('G')),
+      'minute' => intval($date->format('i'))    // intval strips leading zero.
+    );
   }
 
 
@@ -536,45 +573,8 @@ class Dropdate_model extends CI_Model {
    */
   public function prep_submitted_data_for_save(Array $field_data)
   {
-    if ( ! array_key_exists('year', $field_data)
-      OR ! array_key_exists('month', $field_data)
-      OR ! array_key_exists('day', $field_data)
-    )
-    {
-      throw new Exception(
-        $this->EE->lang->line('exception__missing_submitted_data'));
-    }
-
-    if ( ! valid_int($field_data['year'])
-      OR ! valid_int($field_data['month'], 1, 12)
-      OR ! valid_int($field_data['day'], 1, 31)
-    )
-    {
-      throw new Exception(
-        $this->EE->lang->line('exception__invalid_submitted_data'));
-    }
-
-    $year  = $field_data['year'];
-    $month = str_pad($field_data['month'], 2, '0', STR_PAD_LEFT);
-    $day   = str_pad($field_data['day'], 2, '0', STR_PAD_LEFT);
-
-    // Time?
-    if (array_key_exists('hour', $field_data)
-      && array_key_exists('minute', $field_data)
-      && valid_int($field_data['hour'], 0, 23)
-      && valid_int($field_data['minute'], 0, 59)
-    )
-    {
-      $hour   = str_pad($field_data['hour'], 2, '0', STR_PAD_LEFT);
-      $minute = str_pad($field_data['minute'], 2, '0', STR_PAD_LEFT);
-    }
-    else
-    {
-      $hour = $minute = '00';
-    }
-
-    $date = new DateTime("{$year}-{$month}-{$day} {$hour}:{$minute}:00",
-      new DateTimeZone('UTC'));
+    // Exceptions are allowed to bubble.
+    $date = $this->convert_field_data_to_datetime($field_data);
 
     return $this->_field_settings['date_format'] == self::YMD_DATE
       ? $date->format(DateTime::W3C)
