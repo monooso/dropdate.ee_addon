@@ -135,14 +135,13 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the fieldtype in a template.
    *
    * @access public
-   * @param  string $data    The saved field data.
-   * @param  array  $params  The tag parameters.
-   * @param  string $tagdata The tag data (for tag pairs).
+   * @param  string $saved_data   The saved field data.
+   * @param  array  $params       The tag parameters.
+   * @param  string $tagdata      The tag data (for tag pairs).
    * @return string The modified tagdata.
    */
-  public function replace_tag($data, Array $params = array(), $tagdata = '')
+  public function replace_tag($saved_data, Array $params = array(), $tagdata)
   {
-
   }
 
 
@@ -205,12 +204,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Displays the input field on the Low Variables home page.
    *
    * @access public
-   * @param  string $var_data The current variable data.
-   * @return string The input field HTML.
+   * @param  string   $saved_data   The current variable data.
+   * @return string   The input field HTML.
    */
-  public function display_var_field($var_data)
+  public function display_var_field($saved_data = '')
   {
-
+    return $this->_display_field_or_cell($saved_data, FALSE);
   }
 
 
