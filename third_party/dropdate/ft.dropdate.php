@@ -53,9 +53,6 @@ class Dropdate_ft extends EE_Fieldtype {
 
     // Set the public properties.
     $this->default_settings = $this->_model->get_default_field_settings();
-
-    // @TODO : do I still need this?
-    $this->postpone_saves = TRUE;
   }
 
 
