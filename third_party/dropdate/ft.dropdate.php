@@ -155,9 +155,9 @@ class Dropdate_ft extends EE_Fieldtype {
     }
     catch (Exception $e)
     {
-      $message = $this->ee->lang->line('error__invalid_timezone_parameter');
+      $message = $this->EE->lang->line('error__invalid_timezone_parameter');
 
-      $this->ee->tmpl->log_item($error_prefix .$message);
+      $this->EE->TMPL->log_item($error_prefix .$message);
       $this->_model->log_message($message, 3);
 
       return $message;
