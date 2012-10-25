@@ -13,10 +13,7 @@ require_once dirname(__FILE__) .'/config.php';
 
 class Dropdate_ft extends EE_Fieldtype {
 
-  // Protected properties.
   protected $_model;
-
-  // Public properties.
   public $default_settings;
 
   // Have to do this here. EE won't let us call the model methods from the 
@@ -26,7 +23,6 @@ class Dropdate_ft extends EE_Fieldtype {
     'version' => DROPDATE_VERSION
   );
 
-  public $postpone_saves;
 
 
   /* --------------------------------------------------------------
