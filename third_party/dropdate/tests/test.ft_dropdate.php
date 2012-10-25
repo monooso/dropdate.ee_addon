@@ -170,9 +170,6 @@ class Test_dropdate_ft extends Testee_unit_test_case {
     $this->assertIdentical($expected_result, $actual_result);
   }
   
-  
-  
-
 
 }
 

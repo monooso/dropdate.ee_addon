@@ -104,49 +104,160 @@ class Dropdate_ft extends EE_Fieldtype {
 
 
   /**
-   * Performs additional processing after the entry has been saved.
-   *
-   * @access public
-   * @param  string $data The submitted field data.
-   * @return void
-   */
-  public function post_save($data)
-  {
-
-  }
-
-
-  /**
-   * Processes the field data in preparation for the "replace tag" method(s).
-   * Performing the prep work here minimises the overhead when a template
-   * contains multiple fieldtype tags.
-   *
-   * @access public
-   * @param  string $data The fieldtype data.
-   * @return mixed  The prepped data.
-   */
-  public function pre_process($data)
-  {
-
-  }
-
-
-  /**
    * Displays the fieldtype in a template.
    *
    * @access public
    * @param  string $saved_data   The saved field data.
-   * @param  array  $params       The tag parameters.
-   * @param  string $tagdata      The tag data (for tag pairs).
+   * @param  array  $tag_params   The tag parameters.
    * @return string The modified tagdata.
    */
-  public function replace_tag($saved_data, Array $params = array(), $tagdata)
+  public function replace_tag($saved_data, Array $tag_params = array())
   {
+    // Hugely annoying that we can't set this in the constructor.
+    $this->_model->set_field_settings($this->settings);
+
+    // Be prepared.
+    $error_prefix  = $this->EE->lang->line('error__template_error_prefix');
+    $notice_prefix = $this->EE->lang->line('error__template_notice_prefix');
+
+    try
+    {
+      $date = $this->_model->convert_field_data_to_datetime($saved_data);
+
+      if ( ! $date instanceof DateTime)
+      {
+        $message = $this->EE->lang->line('error__invalid_saved_date');
+
+        $this->EE->TMPL->log_item($error_prefix .$message);
+        $this->_model->log_message($message, 3);
+
+        return $message;
+      }
+    }
+    catch (Exception $e)
+    {
+      $message = $e->getMessage();
+
+      $this->EE->TMPL->log_item($error_prefix .$message);
+      $this->_model->log_message($message, 3);
+
+      return $message;
+    }
+
+    $default_params = $this->_model->get_default_template_tag_parameters();
+    $params         = $this->_model->update_array_from_input($default_params,
+                        array_filter($tag_params));
+
+    // Instantiate the timezone instance.
+    try
+    {
+      $timezone = new DateTimeZone($params['timezone']);
+    }
+    catch (Exception $e)
+    {
+      $message = $this->ee->lang->line('error__invalid_timezone_parameter');
+
+      $this->ee->tmpl->log_item($error_prefix .$message);
+      $this->_model->log_message($message, 3);
+
+      return $message;
+    }
+
+    // Convert the date to the desired timezone.
+    if ( ! $date->setTimezone($timezone))
+    {
+      $message = $this->EE->lang->line('error__invalid_timezone_parameter');
+
+      $this->EE->TMPL->log_item($error_prefix .$message);
+      $this->_model->log_message($message, 3);
+
+      return $message;
+    }
+
+    // If a custom language has not been specified, or the formatting string is 
+    // not 'localised', we're done.
+    if ($params['language'] == $default_params['language']
+      OR ! preg_match('/(?<!\\\)%?\w{1}/', $params['format'])
+    )
+    {
+      return $date->format($params['format']);
+    }
+
+    /**
+     * TRICKY:
+     * If the template tag needs to be localised into a language other than 
+     * English, we've got some work to do.
+     *
+     * Unfortunately, the DateTime::format method does not support localisation 
+     * of Date/Time strings. Adding to our woes, the strftime function relies on 
+     * setlocale, and uses completely different formatting codes to the general 
+     * date function. Stupid PHP.
+     *
+     * By default, ExpressionEngine does what is probably the only sane thing in 
+     * this situation, which is to treat standard date formatting strings 
+     * preceded by a % sign as 'localised' date formatting strings. We follow 
+     * their lead.
+     *
+     * Unfortunately, EE does not support arbitrary localisation into the 
+     * language of our choice; it bases its decisions on the currently-selected 
+     * CP language. Even worse, the Localize::convert_timestamp method doesn't 
+     * just localise the strings, it insists on localising the time too. Bloody 
+     * fuck Jean.
+     *
+     * So, in an attempt to fashion something vaguelly useful out of this 
+     * stinking manure mountain, we do the following:
+     *
+     * 1. Determine if there we have an EE language pack for the requested 
+     *    language. If not, we're sunk. We just use the DateTime::format method.
+     * 2. If the EE language pack exists, we load it, and then attempt to parse 
+     *    the string. Of course, we can't just "load" it using 
+     *    EE->lang->loadfile, because that will load whatever language is 
+     *    specified in the CP. Instead we have to seek it out, and manually 
+     *    include it. Any missing language strings fall back to the default 
+     *    DateTime::format output.
+     * 3. Drink.
+     */
+
+    $lang_file = APPPATH ."language/{$params['language']}/core_lang.php";
+
+    if ( ! is_file($lang_file) OR ((@include $lang_file) === FALSE))
+    {
+      $params['format'] = preg_replace('/(?<!\\\)%/', '', $params['format']);
+      return $date->format($params['format']);
+    }
+
+    /**
+     * Huzzah, we have a language file, and this method now has a local $lang 
+     * variable. Now the hard work begins.
+     */
+
+    // Explode the formatting string into its constituent parts.
+    $formatted_date = '';
+    $pattern        = '/(\\\%.{1}|(?<!\\\)%?[^\\\]{1})/';
+
+    preg_match_all($pattern, $params['format'], $format_match);
+
+    foreach ($format_match[1] AS $format_character)
+    {
+      // No point translating something if we don't need to.
+      if ( ! preg_match('/^%(\w){1}$/', $format_character, $character_match))
+      {
+        $formatted_date .= $date->format($format_character);
+        continue;
+      }
+
+      $en_string = $date->format($character_match[1]);
+
+      $formatted_date .= (array_key_exists($en_string, $lang))
+        ? $lang[$en_string] : $en_string;
+    }
+
+    return $formatted_date;
   }
 
 
   /**
-   * Prepares the field data for saving to the databasae.
+   * Prepares the field data for saving to the database.
    *
    * @access public
    * @param  array    $data   The submitted field data.
@@ -237,20 +348,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function display_var_tag($var_data, Array $params, $tagdata)
   {
-
-  }
-
-
-  /**
-   * Performs additional processing after the Low Variable has been saved.
-   *
-   * @access public
-   * @param  string $var_data The submitted Low Variable data.
-   * @return void
-   */
-  public function post_save_var($var_data)
-  {
-
+    return $this->replace_tag($var_data, $params);
   }
 
 

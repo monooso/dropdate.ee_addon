@@ -43,11 +43,21 @@ $lang = array(
   'label__month_11' => 'November',
   'label__month_12' => 'December',
 
+  // Template tag errors.
+  'error__invalid_format_parameter'   => 'An invalid format parameter was passed to DropDate.',
+  'error__invalid_saved_date'         => 'Invalid saved date.',
+  'error__invalid_timezone_parameter' => 'An invalid timezone parameter was passed to DropDate.',
+  'error__template_error_prefix'      => '[ERROR]: ',
+  'error__template_notice_prefix'     => '[NOTICE]: ',
+
   // Exceptions.
   'exception__invalid_saved_date'     => 'Invalid saved date.',
   'exception__invalid_submitted_date' => 'Invalid submitted date.',
   'exception__invalid_year_settings'  => 'Invalid year settings.',
   'exception__missing_year_settings'  => 'Missing year settings.',
+
+  // Template tag notices.
+  'notice__percentage_sign_deprecated' => 'The DropDate format parameter no longer supports the % sign. Backward compatiblity may be removed in a future version; please update your template code.',
 
   // All done.
   '' => ''

@@ -312,6 +312,27 @@ class Test_dropdate_model extends Testee_unit_test_case {
   }
 
 
+  public function test__parse_field_data__handles_a_saved_ymd_string_redux()
+  {
+    $date_string = '2010-10-10T00:00:00+00:00';
+    $date = DateTime::createFromFormat(DateTime::W3C, $date_string);
+
+    $expected_result = array(
+      'year'   => intval($date->format('Y')),
+      'month'  => intval($date->format('n')),
+      'day'    => intval($date->format('j')),
+      'hour'   => intval($date->format('G')),
+      'minute' => intval($date->format('i'))
+    );
+  
+    $this->_subject->set_field_settings(
+      array('date_format' => Dropdate_model::YMD_DATE));
+
+    $this->assertIdentical($expected_result
+      ,$this->_subject->parse_field_data($date_string));
+  }
+
+
   public function test__parse_field_data__throws_exception_if_invalid_saved_unix_string()
   {
     $message   = 'EPIC FAIL!';

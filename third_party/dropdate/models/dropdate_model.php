@@ -398,6 +398,22 @@ class Dropdate_model extends CI_Model {
 
 
   /**
+   * Returns the default template tag parameters.
+   *
+   * @access  public
+   * @return  array
+   */
+  public function get_default_template_tag_parameters()
+  {
+    return array(
+      'format'   => 'U',
+      'language' => 'english',
+      'timezone' => 'UTC'
+    );
+  }
+
+
+  /**
    * Returns an associative array of hours, for use with the `form_dropdown` 
    * Form helper.
    *
