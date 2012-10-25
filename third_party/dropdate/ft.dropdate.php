@@ -290,7 +290,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function uninstall()
   {
-    $this->_model->uninstall_fieldtype();
+    // Do nothing.
   }
 
 
