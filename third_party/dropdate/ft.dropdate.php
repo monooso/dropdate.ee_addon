@@ -216,8 +216,8 @@ class Dropdate_ft extends EE_Fieldtype {
      * So, in an attempt to fashion something vaguelly useful out of this 
      * stinking manure mountain, we do the following:
      *
-     * 1. Determine if there we have an EE language pack for the requested 
-     *    language. If not, we're sunk. We just use the DateTime::format method.
+     * 1. Determine if we have an EE language pack for the requested language. 
+     *    If not, we're sunk. We just use the DateTime::format method.
      * 2. If the EE language pack exists, we load it, and then attempt to parse 
      *    the string. Of course, we can't just "load" it using 
      *    EE->lang->loadfile, because that will load whatever language is 
