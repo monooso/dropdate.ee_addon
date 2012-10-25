@@ -99,7 +99,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function install()
   {
-    return $this->_model->install_fieldtype();
+    // Do nothing.
   }
 
 
