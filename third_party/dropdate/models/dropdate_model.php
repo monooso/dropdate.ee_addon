@@ -20,6 +20,7 @@ class Dropdate_model extends CI_Model {
 
   protected $EE;
   protected $_default_field_settings;
+  protected $_default_tag_parameters;
   protected $_field_settings;
   protected $_namespace;
   protected $_package_name;
@@ -78,6 +79,12 @@ class Dropdate_model extends CI_Model {
       $this->EE->session->cache[$this->_namespace]
         [$this->_package_name] = array();
     }
+
+    $this->_default_tag_parameters = array(
+      'format'   => 'U',
+      'language' => 'english',
+      'timezone' => 'UTC'
+    );
 
     $this->_default_field_settings = array(
       'date_format' => self::UNIX_DATE,
@@ -405,11 +412,7 @@ class Dropdate_model extends CI_Model {
    */
   public function get_default_template_tag_parameters()
   {
-    return array(
-      'format'   => 'U',
-      'language' => 'english',
-      'timezone' => 'UTC'
-    );
+    return $this->_default_tag_parameters;
   }
 
 
