@@ -298,12 +298,12 @@ class Dropdate_ft extends EE_Fieldtype {
    * Validates the submitted field data.
    *
    * @access public
-   * @param  string $data The submitted field data.
+   * @param  mixed   $field_data   The submitted field data.
    * @return bool
    */
-  public function validate($data)
+  public function validate($field_data)
   {
-    // @TODO
+    return $this->_validate($field_data, $this->settings['field_required']);
   }
 
 
@@ -429,6 +429,19 @@ class Dropdate_ft extends EE_Fieldtype {
   }
 
 
+  /**
+   * Validates the submitted Matrix cell data.
+   *
+   * @access  public
+   * @param   mixed    $cell_data    The cell data.
+   * @return  mixed
+   */
+  public function validate_cell($cell_data)
+  {
+    return $this->_validate($cell_data, $this->settings['col_required']);
+  }
+
+
 
   /* --------------------------------------------------------------
    * PROTECTED METHODS
@@ -519,10 +532,15 @@ class Dropdate_ft extends EE_Fieldtype {
     {
       $saved_date = $this->_model->parse_field_data($field_data);
     }
+    catch (DropDateException_InvalidSubmittedDate $e)
+    {
+      // Don't display a notice for 'submitted' exceptions.
+      $this->_model->log_message($e->getMessage(), 3);
+      $saved_date = $this->_model->parse_field_data('');
+    }
     catch (Exception $e)
     {
       $this->_model->log_message($e->getMessage(), 3);
-
       $notice[]   = $e->getMessage();
       $saved_date = $this->_model->parse_field_data('');
     }
@@ -629,6 +647,35 @@ class Dropdate_ft extends EE_Fieldtype {
       $post_settings);
   }
 
+
+  /**
+   * Validates the submitted field data.
+   *
+   * @access  protected
+   * @param   mixed    $data    The field or cell data.
+   * @param   string    $required    Is the field or cell required? (y/n).
+   * @return  mixed
+   */
+  protected function _validate($data, $required)
+  {
+    if ($required == 'n')
+    {
+      return TRUE;
+    }
+
+    $this->_model->set_field_settings($this->settings);
+
+    try
+    {
+      $this->_model->prep_submitted_data_for_save($data);
+      return TRUE;
+    }
+    catch (Exception $e)
+    {
+      return $e->getMessage();
+    }
+  }
+  
 
 }
 
