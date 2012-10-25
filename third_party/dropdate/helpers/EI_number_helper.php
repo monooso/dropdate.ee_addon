@@ -5,8 +5,15 @@
  *
  * @author        Stephen Lewis (http://github.com/experience/)
  * @copyright     Experience Internet
- * @package       JAT_subscriber
+ * @package       EI
+ * @requires      PHP 5.0.5+
  */
+
+if ( ! defined('PHP_INT_MIN'))
+{
+  define('PHP_INT_MIN', ~PHP_INT_MAX);
+}
+
 
 if ( ! function_exists('valid_float'))
 {
@@ -69,8 +76,11 @@ if ( ! function_exists('valid_int'))
       return $valid;
     }
 
-    $min = is_null($min) ? -INF : (valid_int($min) ? intval($min) : -INF);
-    $max = is_null($max) ? INF : (valid_int($max) ? intval($max) : INF);
+    $min = is_null($min) ? PHP_INT_MIN
+      : (valid_int($min) ? intval($min) : PHP_INT_MIN);
+
+    $max = is_null($max) ? PHP_INT_MAX
+      : (valid_int($max) ? intval($max) : PHP_INT_MAX);
 
     $value      = intval($value);
     $real_min   = min($min, $max);
@@ -83,4 +93,4 @@ if ( ! function_exists('valid_int'))
 
 
 /* End of file      : EI_number_helper.php */
-/* File location    : third_party/jat_subscriber/helpers/EI_number_helper.php */
+/* File location    : third_party/dropdate/helpers/EI_number_helper.php */
