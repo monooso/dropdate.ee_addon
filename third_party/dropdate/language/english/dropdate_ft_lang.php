@@ -24,6 +24,10 @@ $lang = array(
   'label__time_5'      => 'Yes, in 5 minute intervals',
   'label__time_15'     => 'Yes, in 15 minute intervals',
 
+  'message__no_global_settings' => "<p>We lured you here under false pretences.
+    <p>There are no global settings, but ExpressionEngine won't update a fieldtype unless you visit its global settings page. Obviously.</p>
+    <p>Just click the 'Submit' button, and get back to your nice life where you don't have to deal with this nonsense for a living.</p>",
+
   // Field.
   'label__day'      => 'Day',
   'label__month'    => 'Month',

@@ -66,6 +66,19 @@ class Dropdate_ft extends EE_Fieldtype {
 
 
   /**
+   * Displays a global settings page. Not used, but the 'update' method doesn't 
+   * get called otherwise. I'm not kidding.
+   *
+   * @access  public
+   * @return  string
+   */
+  public function display_global_settings()
+  {
+    return $this->EE->lang->line('message__no_global_settings');
+  }
+
+
+  /**
    * Displays the fieldtype settings form.
    *
    * @access public
@@ -85,14 +98,17 @@ class Dropdate_ft extends EE_Fieldtype {
 
 
   /**
-   * Installs the fieldtype, and sets the default values.
+   * Does nothing, but must return an array in order to display a global 
+   * settings page. Not that we have any global settings, but EE won't call the 
+   * fieldtype's update method unless the user visits the global settings page. 
+   * Obviously. I'm so glad to be done with this fucking nonsense.
    *
    * @access public
    * @return array
    */
   public function install()
   {
-    // Do nothing.
+    return array();
   }
 
 
@@ -284,6 +300,20 @@ class Dropdate_ft extends EE_Fieldtype {
   public function uninstall()
   {
     // Do nothing.
+  }
+
+
+  /**
+   * Updates the fieldtype.
+   *
+   * @access  public
+   * @param   string  $installed_version    The installed fieldtype version.
+   * @return  bool
+   */
+  public function update($installed_version = '')
+  {
+    exit('Version: ' .$installed_version);
+    return $this->update_package($installed_version);
   }
 
 
