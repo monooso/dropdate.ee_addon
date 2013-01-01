@@ -21,6 +21,6 @@ See [Wiki][wiki] for further information about usage.
 ## Freeform Pro Template Tags: Basic Usage
 ```
 {freeform:field:dropdate}                          // 98960400
-{freeform:field:dropdate dateformat='jS F, Y'}     // 19th February, 1973
-{freeform:field:dropdate dateformat='Y-m-d'}       // 1973-02-19
+{freeform:field:dropdate date_format='jS F, Y'}     // 19th February, 1973
+{freeform:field:dropdate date_format='Y-m-d'}       // 1973-02-19
 ```
