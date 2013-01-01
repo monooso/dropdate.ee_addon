@@ -339,12 +339,12 @@ class Dropdate_freeform_ft extends Freeform_base_ft {
 		if ( ! $field_data)
 			return '';
 
-		$params = array_merge(array('dateformat' => 'U'), $params);
+		$params = array_merge(array('date_format' => 'U'), $params);
 
 		// @low: if there's a percentage sign in the format, use EE's native date function for language file use
-		return (strpos($params['dateformat'], '%') === FALSE)
-			? date($params['dateformat'], $field_data)
-			: $this->EE->localize->decode_date($params['dateformat'], $field_data)
+		return (strpos($params['date_format'], '%') === FALSE)
+			? date($params['date_format'], $field_data)
+			: $this->EE->localize->decode_date($params['date_format'], $field_data)
 			;
 	}
 
