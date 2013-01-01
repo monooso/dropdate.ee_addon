@@ -10,6 +10,10 @@
  */
 
 $lang = array(
+
+// Freeform Field.
+'required_field'			=> 'Is this field required? Must be specified here and on field itself.',
+'missing_required_field'	=> 'Required field missing input',
 	
 // General.
 'save_format_label'	=> 'Save Date As:',
