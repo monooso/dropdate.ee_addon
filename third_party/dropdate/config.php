@@ -13,6 +13,7 @@ if ( ! defined('DROPDATE_NAME'))
 {
   define('DROPDATE_NAME', 'DropDate');
   define('DROPDATE_VERSION', '2.2.0');
+  define('DROPDATE_DESCRIPTION', 'Fieldtype enabling users to select a date using 3 or 5 drop-downs (day, month, year[, hour, minute]).');
 }
 
 $config['name']     = DROPDATE_NAME;
