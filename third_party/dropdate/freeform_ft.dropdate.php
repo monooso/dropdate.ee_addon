@@ -350,7 +350,7 @@ class Dropdate_freeform_ft extends Freeform_base_ft {
 
 	public function display_entry_cp($field_data) {
 		return $this->replace_tag($field_data, array(
-			'format'	=> $this->EE->config->item('log_date_format')
+			'date_format'	=> $this->EE->config->item('log_date_format')
 		));
 	}
 
