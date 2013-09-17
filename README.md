@@ -17,7 +17,7 @@ Each field can be saved as a [UNIX timestamp][unix], or in `YYYYMMDD` format, fo
 [unix]: http://en.wikipedia.org/wiki/Unix_time "Read more about the UNIX timestamp"
 [super_search]: http://www.solspace.com/software/detail/super_search/ "Read more about Solspace's Super Search module"
 
-## Biggest, Faster, Better, Stronger
+## Bigger, Faster, Better, Stronger
 
 If this is a new site, your best bet is to use the version of DropDate in the `develop` branch. It's a complete rewrite, and resolves a few minor bugs.
 
