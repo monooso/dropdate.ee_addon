@@ -48,13 +48,12 @@ class Dropdate_ft extends EE_Fieldtype {
   {
     //parent::EE_Fieldtype();
     parent::__construct();
-    $this->EE =& get_instance();
-    $this->EE->load->library('table');
-    $this->EE->lang->loadfile('dropdate');
+    ee()->load->library('table');
+    ee()->lang->loadfile('dropdate');
 
     $this->_class       = get_class($this);
     $this->_lower_class = strtolower($this->_class);
-    $this->_time_format = $this->EE->config->item('time_format');
+    $this->_time_format = ee()->config->item('time_format');
 
     $this->postpone_saves = TRUE;
 
@@ -341,11 +340,11 @@ class Dropdate_ft extends EE_Fieldtype {
             'type' => 'html',
             'content' => '<label style="margin-right:20px">'
                         . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
-                        . ' '. $this->EE->lang->line('unix_format_label')
+                        . ' '. ee()->lang->line('unix_format_label')
                         .'</label>'
                         .'<label>'
                         . form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
-                        . ' '. $this->EE->lang->line('ymd_format_label')
+                        . ' '. ee()->lang->line('ymd_format_label')
                         .'</label>'
           )
         )
@@ -392,9 +391,9 @@ class Dropdate_ft extends EE_Fieldtype {
     $settings = $this->_get_settings($field_settings);
     foreach ($settings AS $row)
     {
-      $this->EE->table->add_row($row[0], $row[1]);
+      ee()->table->add_row($row[0], $row[1]);
     }
-    return $this->EE->table->generate();
+    return ee()->table->generate();
   }
 
   public function save_global_settings()
@@ -441,7 +440,7 @@ class Dropdate_ft extends EE_Fieldtype {
     }
     else
     {
-      return $this->EE->localize->format_date($params['format'], $field_data);
+      return ee()->localize->format_date($params['format'], $field_data);
     }
   }
   
@@ -671,12 +670,12 @@ class Dropdate_ft extends EE_Fieldtype {
         lang('save_format_label'),
          '<label style="margin-right:20px">'
         . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
-        . ' '. $this->EE->lang->line('unix_format_label')
+        . ' '. ee()->lang->line('unix_format_label')
         .'</label>'
         .'<br/>'
         .'<label>'
         . form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
-        . ' '. $this->EE->lang->line('ymd_format_label')
+        . ' '. ee()->lang->line('ymd_format_label')
         .'</label>'
       ),
       array(
@@ -706,7 +705,7 @@ class Dropdate_ft extends EE_Fieldtype {
     
     foreach ($this->settings AS $setting => $value)
     {
-      if (($settings[$setting] = $this->EE->input->post($setting)) === FALSE)
+      if (($settings[$setting] = ee()->input->post($setting)) === FALSE)
       {
         $settings[$setting] = $value;
       }
