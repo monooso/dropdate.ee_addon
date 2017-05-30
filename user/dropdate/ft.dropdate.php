@@ -32,7 +32,6 @@ class Dropdate_ft extends EE_Fieldtype {
   public $postpone_saves;
   public $default_settings;
   
-  
   /**
    * --------------------------------------------------------------
    * PUBLIC METHODS
@@ -47,11 +46,14 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function __construct()
   {
-    parent::EE_Fieldtype();
+    //parent::EE_Fieldtype();
+    parent::__construct();
+    ee()->load->library('table');
+    ee()->lang->loadfile('dropdate');
 
     $this->_class       = get_class($this);
     $this->_lower_class = strtolower($this->_class);
-    $this->_time_format = $this->EE->config->item('time_format');
+    $this->_time_format = ee()->config->item('time_format');
 
     $this->postpone_saves = TRUE;
 
@@ -99,7 +101,6 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function display_field($field_data = '', $cell = FALSE)
   {
-    $this->EE->lang->loadfile('dropdate');
     
     $field_name = $cell ? $this->cell_name : $this->field_name;
     
@@ -314,14 +315,90 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param   array   $field_settings   Previously saved field settings.
    * @return  array
    */
-  public function display_settings(Array $field_settings = array())
+  public function display_settings($data)
   {
+    foreach ($this->settings AS $setting => $value)
+    {
+      if ( ! array_key_exists($setting, $data))
+      {
+        $data[$setting] = $value;
+      }
+    }
+
+    // Drop down of time options
+    $time_options = array(
+      ''   => lang('show_time_no'),
+      '5'  => lang('show_time_5'),
+      '15' => lang('show_time_15')
+    );
+
+    $settings = array(
+      array(
+        'title' => lang('save_format_label'),
+        'fields' => array(
+          'date_format' => array(
+            'type' => 'html',
+            'content' => '<label style="margin-right:20px">'
+                        . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($data['date_format'] == self::DROPDATE_FMT_UNIX))
+                        . ' '. ee()->lang->line('unix_format_label')
+                        .'</label>'
+                        .'<label>'
+                        . form_radio('date_format', self::DROPDATE_FMT_YMD, ($data['date_format'] == self::DROPDATE_FMT_YMD))
+                        . ' '. ee()->lang->line('ymd_format_label')
+                        .'</label>'
+          )
+        )
+         
+      ),
+      array(
+        'title' => lang('year_range_label'),
+        'fields' => array(
+          'year_range' => array (
+            'type' => 'text',
+            'value' => $data['year_range'],
+            'style' => 'width:75px'
+          )
+        )
+      ),
+      array(
+       'title' => lang('show_time_label'),
+       'fields' => array(
+          'show_time' => array(
+            'type' => 'select',
+            'choices' => $time_options, 
+            'value' => $data['show_time']
+          )
+        )
+      )
+    );
+    return array('field_options_dropdate' => array(
+        'label' => 'field_options',
+        'group' => 'dropdate',
+        'settings' => $settings
+    ));
+  }
+
+  /**
+   * Used for Add-on settings in the Add-ons manager
+   *
+   * @access  public
+   * @param   array   $field_settings   Previously saved field settings.
+   * @return  array
+   */
+  public function display_global_settings()
+  {
+    $field_settings = array_merge($this->settings, $_POST);
     $settings = $this->_get_settings($field_settings);
-    
     foreach ($settings AS $row)
     {
-      $this->EE->table->add_row('<strong>'. $row[0] .'</strong>', $row[1]);
+      ee()->table->add_row($row[0], $row[1]);
     }
+    return ee()->table->generate();
+  }
+
+  public function save_global_settings()
+  {
+    return array_merge($this->settings, $_POST);
   }
   
   
@@ -335,21 +412,21 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param   array     $field_settings   The field settings.
    * @return  string
    */
-  public function replace_tag($field_data = '', Array $params = array(), $tagdata = '')
+  public function replace_tag($data, $params = array(), $tagdata = false)
   {
     if (isset($this->settings['date_format'])
       && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
     {
       $pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})T?(([0-9]{2})([0-9]{2}))?$/';
-      if (preg_match($pattern, $field_data, $matches))
+      if (preg_match($pattern, $data, $matches))
       {
         $hour       = (int) (isset($matches[5]) ? $matches[5] : 0);
         $minute     = (int) (isset($matches[6]) ? $matches[6] : 0);
-        $field_data = mktime($hour, $minute, 1, $matches[2], $matches[3], $matches[1]);
+        $data = mktime($hour, $minute, 1, $matches[2], $matches[3], $matches[1]);
       }
     }
 
-    if ( ! $field_data)
+    if ( ! $data)
     {
       return '';
     }
@@ -359,11 +436,11 @@ class Dropdate_ft extends EE_Fieldtype {
     // @low: if there's a percentage sign in the format, use EE's native date function for language file use
     if (strpos($params['format'], '%') === FALSE)
     {
-      return date($params['format'], $field_data);
+      return date($params['format'], $data);
     }
     else
     {
-      return $this->EE->localize->decode_date($params['format'], $field_data);
+      return ee()->localize->format_date($params['format'], $data);
     }
   }
   
@@ -445,7 +522,7 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param array   $field_settings   The field settings.
    * @return  array
    */
-  public function save_settings(Array $field_settings = array())
+  public function save_settings($data)
   {
     return $this->_get_posted_settings();
   }
@@ -479,6 +556,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   public function display_var_settings(Array $var_settings = array())
   {
+    $this->settings = array_merge($this->default_settings, $this->settings);
     return $this->_get_settings($var_settings);
   }
   
@@ -533,23 +611,29 @@ class Dropdate_ft extends EE_Fieldtype {
   
   
   /**
-   * Install fieldtype
+   * Install fieldtype, using the same values as default_settings
    *
-   * Check to see if FF2EE2 exists to migrate existing fields
    */
   function install()
   {
-    $ff2ee2_file = PATH_THIRD.'pt_field_pack/ff2ee2/ff2ee2.php';
+    // $ff2ee2_file = PATH_THIRD.'fieldpack/ff2ee2/ff2ee2.php';
     
-    if ( ! class_exists('FF2EE2') && file_exists($ff2ee2_file))
-    {
-      require $ff2ee2_file;
-    }
+    // if ( ! class_exists('FF2EE2') && file_exists($ff2ee2_file))
+    // {
+    //   require $ff2ee2_file;
+    // }
 
-    if (class_exists('FF2EE2'))
-    {
-      new FF2EE2('dropdate');
-    }
+    // if (class_exists('FF2EE2'))
+    // {
+    //   $converter = new FF2EE2('dropdate');
+    //   return $converter->global_settings;
+    // }
+
+    return array(
+      'date_format' => self::DROPDATE_FMT_UNIX,
+      'year_range'  => '1900-2020',
+      'show_time'   => ''
+    );
   }
   
   
@@ -566,9 +650,7 @@ class Dropdate_ft extends EE_Fieldtype {
    */
   private function _get_settings(Array $field_settings = array())
   {
-    $this->EE->lang->loadfile('dropdate');
-    
-    foreach ($this->default_settings AS $setting => $value)
+    foreach ($this->settings AS $setting => $value)
     {
       if ( ! array_key_exists($setting, $field_settings))
       {
@@ -588,11 +670,12 @@ class Dropdate_ft extends EE_Fieldtype {
         lang('save_format_label'),
          '<label style="margin-right:20px">'
         . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
-        . ' '. $this->EE->lang->line('unix_format_label')
+        . ' '. ee()->lang->line('unix_format_label')
         .'</label>'
+        .'<br/>'
         .'<label>'
         . form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
-        . ' '. $this->EE->lang->line('ymd_format_label')
+        . ' '. ee()->lang->line('ymd_format_label')
         .'</label>'
       ),
       array(
@@ -620,9 +703,9 @@ class Dropdate_ft extends EE_Fieldtype {
   {
     $settings = array();
     
-    foreach ($this->default_settings AS $setting => $value)
+    foreach ($this->settings AS $setting => $value)
     {
-      if (($settings[$setting] = $this->EE->input->post($setting)) === FALSE)
+      if (($settings[$setting] = ee()->input->post($setting)) === FALSE)
       {
         $settings[$setting] = $value;
       }
@@ -634,4 +717,4 @@ class Dropdate_ft extends EE_Fieldtype {
 }
 
 /* End of file      : ft.dropdate.php */
-/* Location of file   : /system/expressionengine/third_party/dropdate/ft.dropdate.php */
+/* Location of file   : /system/user/addons/dropdate/ft.dropdate.php */

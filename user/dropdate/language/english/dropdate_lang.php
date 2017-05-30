@@ -48,4 +48,4 @@ $lang = array(
 );
 
 /* End of file		: dropdate_lang.php */
-/* File location	: /system/expressionengine/third_party/dropdate/language/english/dropdate_lang.php */
+/* File location	: /system/user/addons/dropdate/language/english/dropdate_lang.php */

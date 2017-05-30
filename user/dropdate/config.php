@@ -21,4 +21,4 @@ $config['nsm_addon_updater']['versions_xml']
   = 'http://experienceinternet.co.uk/software/feeds/dropdate';
 
 /* End of file      : config.php */
-/* File location    : third_party/dropdate/config.php */
+/* File location    : /system/user/addons/dropdate/config.php */
