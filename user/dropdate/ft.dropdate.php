@@ -315,13 +315,13 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param   array   $field_settings   Previously saved field settings.
    * @return  array
    */
-  public function display_settings(Array $field_settings = array())
+  public function display_settings($data)
   {
     foreach ($this->settings AS $setting => $value)
     {
-      if ( ! array_key_exists($setting, $field_settings))
+      if ( ! array_key_exists($setting, $data))
       {
-        $field_settings[$setting] = $value;
+        $data[$setting] = $value;
       }
     }
 
@@ -339,11 +339,11 @@ class Dropdate_ft extends EE_Fieldtype {
           'date_format' => array(
             'type' => 'html',
             'content' => '<label style="margin-right:20px">'
-                        . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($field_settings['date_format'] == self::DROPDATE_FMT_UNIX))
+                        . form_radio('date_format', self::DROPDATE_FMT_UNIX, ($data['date_format'] == self::DROPDATE_FMT_UNIX))
                         . ' '. ee()->lang->line('unix_format_label')
                         .'</label>'
                         .'<label>'
-                        . form_radio('date_format', self::DROPDATE_FMT_YMD, ($field_settings['date_format'] == self::DROPDATE_FMT_YMD))
+                        . form_radio('date_format', self::DROPDATE_FMT_YMD, ($data['date_format'] == self::DROPDATE_FMT_YMD))
                         . ' '. ee()->lang->line('ymd_format_label')
                         .'</label>'
           )
@@ -355,7 +355,7 @@ class Dropdate_ft extends EE_Fieldtype {
         'fields' => array(
           'year_range' => array (
             'type' => 'text',
-            'value' => $field_settings['year_range'],
+            'value' => $data['year_range'],
             'style' => 'width:75px'
           )
         )
@@ -366,7 +366,7 @@ class Dropdate_ft extends EE_Fieldtype {
           'show_time' => array(
             'type' => 'select',
             'choices' => $time_options, 
-            'value' => $field_settings['show_time']
+            'value' => $data['show_time']
           )
         )
       )
@@ -412,21 +412,21 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param   array     $field_settings   The field settings.
    * @return  string
    */
-  public function replace_tag($field_data = '', Array $params = array(), $tagdata = '')
+  public function replace_tag($data, $params = array(), $tagdata = false)
   {
     if (isset($this->settings['date_format'])
       && $this->settings['date_format'] == self::DROPDATE_FMT_YMD)
     {
       $pattern = '/^([0-9]{4})([0-9]{2})([0-9]{2})T?(([0-9]{2})([0-9]{2}))?$/';
-      if (preg_match($pattern, $field_data, $matches))
+      if (preg_match($pattern, $data, $matches))
       {
         $hour       = (int) (isset($matches[5]) ? $matches[5] : 0);
         $minute     = (int) (isset($matches[6]) ? $matches[6] : 0);
-        $field_data = mktime($hour, $minute, 1, $matches[2], $matches[3], $matches[1]);
+        $data = mktime($hour, $minute, 1, $matches[2], $matches[3], $matches[1]);
       }
     }
 
-    if ( ! $field_data)
+    if ( ! $data)
     {
       return '';
     }
@@ -436,11 +436,11 @@ class Dropdate_ft extends EE_Fieldtype {
     // @low: if there's a percentage sign in the format, use EE's native date function for language file use
     if (strpos($params['format'], '%') === FALSE)
     {
-      return date($params['format'], $field_data);
+      return date($params['format'], $data);
     }
     else
     {
-      return ee()->localize->format_date($params['format'], $field_data);
+      return ee()->localize->format_date($params['format'], $data);
     }
   }
   
@@ -522,7 +522,7 @@ class Dropdate_ft extends EE_Fieldtype {
    * @param array   $field_settings   The field settings.
    * @return  array
    */
-  public function save_settings(Array $field_settings = array())
+  public function save_settings($data)
   {
     return $this->_get_posted_settings();
   }
